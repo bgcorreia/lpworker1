@@ -8,11 +8,14 @@ VERSÃO: 0.001
 */
 
 #include <iostream>
+#include <string>
+#include <cstdlib>
 #include "colors.h"
 
 using namespace std;
 
-class pessoa {
+class pessoa
+{
 private:
 	string nome ;
 	string endereco ;
@@ -36,7 +39,8 @@ void pessoa::setEndereco( string Endereco ){ endereco = Endereco ; }
 void pessoa::setTelefone( int Telefone ){ telefone = Telefone; }
 
 
-class contato {
+class contato
+{
 private:
 	string email ;
 public:
@@ -48,7 +52,8 @@ string contato::getEmail(){ return email; }
 void contato::setEmail( string Email ){ email=Email; }
 
 
-class pessoaFisica: public pessoa, public contato {
+class pessoaFisica: public pessoa, public contato
+{
 private:
 	int cpf;
 public:
@@ -60,7 +65,8 @@ int pessoaFisica::getCPF(){ return cpf; }
 void pessoaFisica::setCPF( int CPF ){ cpf=CPF; }
 
 
-class pessoaJuridica: public pessoa, public contato {
+class pessoaJuridica: public pessoa, public contato
+{
 private:
 	int cnpj;
 public:
@@ -71,11 +77,12 @@ public:
 int pessoaJuridica::getCNPJ(){ return cnpj; }
 void pessoaJuridica::setCNPJ( int CNPJ ){ cnpj=CNPJ; }
 
-class mensagem{
+
+class mensagem
+{
 public:
-	void boasvidas(){
-
-
+	void boasvidas()
+	{
 		cout << BOLD(" .d8888b.                 888           888                   ") <<endl; 
 		cout << BOLD("d88P  Y88b                888           888                   ") <<endl;
 		cout << BOLD("888    888                888           888                   ") <<endl;
@@ -84,49 +91,84 @@ public:
 		cout << BOLD("888    888888  888888  888888   .d888888888   888  888\"Y8888b.") <<endl;
 		cout << BOLD("Y88b  d88PY88..88P888  888Y88b. 888  888Y88b. Y88..88P     X88") <<endl;
 		cout << BOLD(" \"Y8888P\"  \"Y88P\" 888  888 \"Y888\"Y888888 \"Y888 \"Y88P\"  88888P\'") <<endl<<endl;
-
-		cout << BOLD(BBLU(FWHT("BEM VINDO"))) << endl; 
 	}
+
+	void opcoes()
+	{
+		cout<<"[1] Cadastro\n[2] Consulta\n[3] Editar\n[4] Remover\n[0] Fechar\nOpcao [ ]\b\b";
+	}
+
+	
+
 };
 
 int main()
 {
 
-	string Nome, Endereco, Email ;
-	int CPF, CNPJ, Telefone ;
+	string Nome, Endereco, Email, Telefone;
+	int CPF, CNPJ;
+	char opcao;
 
 	pessoaFisica z;
 
-/*	z.setNome("Bruno Correia"),
-	z.setEndereco("Rua Iaia Paiva"),
-	z.setTelefone(839),
-	z.setCPF(123456);
-*/
-/*
-	cout << "Definir Nome: ";
-	cin >> Nome;
-	z.setNome(Nome);
-	
-	cout << "Definir Endereco: ";
-	cin >> Endereco;
-	z.setEndereco(Endereco);
-
-	cout << "Definir Email: ";
-	cin >> Email;
-	z.setEmail(Email);
-
-	cout << "Definir CPF: ";
-	cin >> CPF;
-	z.setCPF(CPF);
-
-	cout << "Definir Telefone: ";
-	cin >> Telefone;
-	z.setTelefone(Telefone);
-
-	cout << endl << "Nome: " << z.getNome() << " Endereço: " << z.getEndereco() << " Telefone: " << z.getTelefone() << " CPF: " << z.getCPF() << " Email: " << z.getEmail() <<endl;
-*/
 	mensagem m;
-	m.boasvidas();
+
+	//m.boasvidas();
+	cout<<"[1] Cadastro\n[2] Consulta\n[3] Editar\n[4] Remover\n[0] Fechar\nOpcao [ ]\b\b";
+	cin>>opcao;
+	cin.ignore(1000, '\n');
+
+	switch(opcao)
+	{
+		case '1':
+		{
+			
+			system("clear");		
+	
+			// Exibe o texto abaixo
+			cout<<"Opção Cadastro: "<<opcao<<endl<<endl;
+
+			cout<<"Por favor, preencha o formulário abaixo."<<endl;
+			cout<<BLNK("ATENÇÃO!")<<" Formulários que não seguirem as orientações dos campos, não serão salvos."<<endl<<endl;
+
+			cout<<"NOME................[                             ]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
+			//cout<<"Nome: ";
+			getline (cin,Nome);
+			//cin>>Nome;
+			//cout<<endl;
+
+			cout<<"ENDEREÇO............[                             ]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
+			getline(cin,Endereco);
+			
+//			cout<<"TELEFONE.................. [(  )         ]\b\b\b\b\b\b\b\b\b\b\b\b\b";
+//			getline(cin,Telefone);
+			//cout<<endl;
+
+/*
+			cout<<"EMAIL..................... [                             ]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
+			cin>>Email;
+			cout<<endl;
+*/
+		break;
+		}
+			
+		case '2':
+			cout<<"Opção Consulta: "<<opcao<<endl;
+		break;
+
+		case '3':
+			cout<<"Opção Editar: "<<opcao<<endl;
+		break;
+			
+		case '4':
+			cout<<"Opção Remover: "<<opcao<<endl;
+		break;
+			
+		case '0':
+			cout<<"Opção Fechar: "<<opcao<<endl;
+		break;
+			
+	}
 
 	return 0;
 
