@@ -10,6 +10,7 @@ VERSÃO: 0.001
 #include <iostream> // USAR CIN, COUT E ETC
 #include <string> // USAR STRING
 #include <iomanip> // USAR SETW E ETC
+#include <sstream> //stringstream
 #include <fstream> // MANIPULAR ARQUIVOS
 #include <cstdlib> // DESCOBRIR
 #include "colors.h" // FUNCOES PARA FORMATAR TEXTO
@@ -103,14 +104,28 @@ class mensagem
 public:
 	void boasvidas()
 	{
-		cout << BOLD(" .d8888b.                 888           888                   ") <<endl; 
-		cout << BOLD("d88P  Y88b                888           888                   ") <<endl;
-		cout << BOLD("888    888                888           888                   ") <<endl;
-		cout << BOLD("888        .d88b. 88888b. 888888 8888b. 888888 .d88b. .d8888b ") <<endl;
-		cout << BOLD("888       d88\"\"88b888 \"88b888       \"88b888   d88\"\"88b88K     ") <<endl;
-		cout << BOLD("888    888888  888888  888888   .d888888888   888  888\"Y8888b.") <<endl;
-		cout << BOLD("Y88b  d88PY88..88P888  888Y88b. 888  888Y88b. Y88..88P     X88") <<endl;
-		cout << BOLD(" \"Y8888P\"  \"Y88P\" 888  888 \"Y888\"Y888888 \"Y888 \"Y88P\"  88888P\'") <<endl<<endl;
+
+		cout << BOLD("		             _       ") <<endl;
+		cout << BOLD("                            | |      ") <<endl;
+		cout << BOLD("   __ _  __ _  ___ _ __   __| | __ _ ") <<endl;
+		cout << BOLD("  / _` |/ _` |/ _ \\ '_ \\ / _` |/ _` |") <<endl;
+		cout << BOLD(" | (_| | (_| |  __/ | | | (_| | (_| |") <<endl;
+		cout << BOLD("  \\__,_|\\__, |\\___|_| |_|\\__,_|\\__,_|") <<endl;
+		cout << BOLD("         __/ |                       ") <<endl;
+		cout << BOLD("        |___/                        ") <<endl<<endl;
+	}
+
+	void cadastro()
+	{
+
+		cout << BOLD("                _           _             ") <<endl;
+		cout << BOLD("               | |         | |            ") <<endl;
+		cout << BOLD("   ___ __ _  __| | __ _ ___| |_ _ __ ___  ") <<endl;
+		cout << BOLD("  / __/ _` |/ _` |/ _` / __| __| '__/ _ \\ ") <<endl;
+		cout << BOLD(" | (_| (_| | (_| | (_| \\__ \\ |_| | | (_) |") <<endl;
+		cout << BOLD("  \\___\\__,_|\\__,_|\\__,_|___/\\__|_|  \\___/ ") <<endl<<endl;
+                                          
+
 	}
 
 	void opcoes()
@@ -130,7 +145,7 @@ int main()
 	string Nome, NomeFantasia, Endereco, Email, Telefone;
 	string CPF, CNPJ;
 	string stream;
-	int i;
+	int i, contador;
 	char opcao, tipoPessoa;
 
 	pessoaFisica f;
@@ -140,9 +155,11 @@ int main()
 	ofstream escreverAgenda;
 	ifstream lerAgenda;
 
-	mensagem m;
+	mensagem exibir;
 
-	//m.boasvidas();
+	system("clear");
+
+	exibir.boasvidas();
 	cout<<BOLD("[1]")<<" Cadastro"<<endl;
 	cout<<BOLD("[2]")<<" Consulta"<<endl;
 	cout<<BOLD("[3]")<<" Editar"<<endl;
@@ -155,11 +172,11 @@ int main()
 
 	switch(opcao)
 	{
-		case '1':
+		case '1': // OPÇÃO CADASTRO
 		{
-		cout<<BOLD("[F]")<<"Pessoa Física"<<endl;
-		cout<<BOLD("[J]")<<"Pessoa Jurídica"<<endl;
-		cout<<BOLD("[0]")<<"Voltar"<<endl;
+		cout<<BOLD("[F]")<<" Pessoa Física"<<endl;
+		cout<<BOLD("[J]")<<" Pessoa Jurídica"<<endl;
+		cout<<BOLD("[0]")<<" Voltar"<<endl;
 		cout<<"Opção "<<BOLD("[ ]\b\b");
 		cin>>opcao;
 		cin.ignore(1000, '\n');
@@ -167,94 +184,112 @@ int main()
 
 			switch(opcao)
 			{
+				// CADASTRO PESSOA FISICA
+				case 'f':
 				case 'F':
 				{
-				system("clear");		
-	
-				// Exibe o texto abaixo
-				cout<<"Opção Cadastro, Pessoa Física. "<<opcao<<endl<<endl;
+					system("clear");
 
-				cout<<"Por favor, preencha o formulário abaixo."<<endl;
-				cout<<BLNK("ATENÇÃO!")<<" Formulários que não seguirem as orientações dos campos, não serão salvos."<<endl<<endl;
+					exibir.cadastro();
 
-				cout<<BOLD("CPF")<<"................."<<BOLD("[")<<".............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-				getline(cin,CPF);
-				f.setCPF(CPF);
+					// Exibe o texto abaixo
+					cout<<"Opção Cadastro, Pessoa Física."<<endl<<endl;
+
+					cout<<"Por favor, preencha o formulário abaixo."<<endl;
+					cout<<BLNK("ATENÇÃO!")<<" Formulários que não seguirem as orientações dos campos, não serão salvos."<<endl<<endl;
+
+					cout<<BOLD("CPF")<<"................."<<BOLD("[")<<".............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+					getline(cin,CPF);
+					f.setCPF(CPF);
 			
-				cout<<BOLD("NOME")<<"................"<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-				getline(cin,Nome);
-				f.setNome(Nome);				
+					cout<<BOLD("NOME")<<"................"<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+					getline(cin,Nome);
+					f.setNome(Nome);				
 
-				cout<<BOLD("ENDEREÇO")<<"............"<<BOLD("[")<<".................................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-				getline(cin,Endereco);
-				f.setEndereco(Endereco);
+					cout<<BOLD("ENDEREÇO")<<"............"<<BOLD("[")<<".................................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+					getline(cin,Endereco);
+					f.setEndereco(Endereco);
 			
-				cout<<BOLD("TELEFONE")<<"............"<<BOLD("[")<<"..............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-				getline(cin,Telefone);
-				f.setTelefone(Telefone);
+					cout<<BOLD("TELEFONE")<<"............"<<BOLD("[")<<"..............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+					getline(cin,Telefone);
+					f.setTelefone(Telefone);
 
-				cout<<BOLD("EMAIL")<<"..............."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-				getline(cin,Email);
-				f.setEmail(Email);
+					cout<<BOLD("EMAIL")<<"..............."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+					getline(cin,Email);
+					f.setEmail(Email);
+				
+					lerAgenda.open("base.dat");
+				
+					// TESTA SE ARQUIVO EXISTE
+					if (lerAgenda.good()){
+						cout << "Salvo em Base existente." <<endl;
+						escreverAgenda.open("base.dat", ios::app);
+					} else {
+						cout << "Base não existe, criada."<<endl;
+						escreverAgenda.open("base.dat"); //PADRÃO É OUT, CRIA O ARQUIVO
+					};
 
-				cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
+					lerAgenda.close();
 
-				escreverAgenda.open("base.dat");
+					if ( !escreverAgenda ){
+						cerr<<"Arquivo não pôde ser criado."<<endl;
+					} else {
+						escreverAgenda << f.getCPF() << ";" << f.getNome() << ";" << f.getEndereco() << ";" << f.getTelefone() << ";" << f.getEmail() << endl;
+						escreverAgenda.close();
+						cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
+					};
 
-				if ( !escreverAgenda ){
-					cerr<<"Arquivo não pôde ser criado."<<endl;
-				} else {
-					//escreverAgenda << f.getCPF() << " " << "\"" << f.getNome() << "\"" <<  " " << "\"" << f.getEndereco() << "\"" << " " << "\"" << f.getTelefone() << "\"" << " " << f.getEmail() << endl;
-					escreverAgenda << f.getCPF() << ";" << f.getNome() << ";" << f.getEndereco() << ";" << f.getTelefone() << ";" << f.getEmail() << endl;
-					escreverAgenda.close();
 				};
-
-				}
 				break;
 
+				// CADASTRO PESSOA JURIDICA
+				case 'j':
 				case 'J':
 				{
-				system("clear");                
-        
-                	        // Exibe o texto abaixo
-	                        cout<<"Opção Cadastro, Pessoa Jurídica. "<<opcao<<endl<<endl;
+					system("clear");                
+	        
+                		        // Exibe o texto abaixo
+	                	        cout<<"Opção Cadastro, Pessoa Jurídica."<<endl<<endl;
 	
-	                        cout<<"Por favor, preencha o formulário abaixo."<<endl;
-	                        cout<<BLNK("ATENÇÃO!")<<" Formulários que não seguirem as orientações dos campos, não serão salvos."<<endl<<endl;
+		                        cout<<"Por favor, preencha o formulário abaixo."<<endl;
+		                        cout<<BLNK("ATENÇÃO!")<<" Formulários que não seguirem as orientações dos campos, não serão salvos."<<endl<<endl;
 
-				cout<<BOLD("CNPJ")<<"................"<<BOLD("[")<<".................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-				getline(cin,CNPJ);
-				j.setCNPJ(CNPJ);
+					cout<<BOLD("CNPJ")<<"................"<<BOLD("[")<<".................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+					getline(cin,CNPJ);
+					j.setCNPJ(CNPJ);
                         
-				cout<<BOLD("NOME FANTASIA")<<"......."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-        	                getline(cin,NomeFantasia);
-				j.setNomeFantasia(NomeFantasia);
+					cout<<BOLD("NOME FANTASIA")<<"......."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+	        	                getline(cin,NomeFantasia);
+					j.setNomeFantasia(NomeFantasia);
 
-				cout<<BOLD("RAZÃO SOCIAL")<<"........."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-	                        getline(cin,Nome);
-				j.setNome(Nome);
+					cout<<BOLD("RAZÃO SOCIAL")<<"........."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		                        getline(cin,Nome);
+					j.setNome(Nome);
                         
-				cout<<BOLD("ENDEREÇO")<<"............"<<BOLD("[")<<".................................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-        	                getline(cin,Endereco);
-				j.setEndereco(Endereco);
+					cout<<BOLD("ENDEREÇO")<<"............"<<BOLD("[")<<".................................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+	        	                getline(cin,Endereco);
+					j.setEndereco(Endereco);
 
-	                        cout<<BOLD("TELEFONE")<<"............"<<BOLD("[")<<"..............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-        	                getline(cin,Telefone);
-				j.setTelefone(Telefone);
+		                        cout<<BOLD("TELEFONE")<<"............"<<BOLD("[")<<"..............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+	        	                getline(cin,Telefone);
+					j.setTelefone(Telefone);
+	
+        	        	        cout<<BOLD("EMAIL")<<"..............."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+	        	                getline(cin,Email);
+					j.setEmail(Email);
 
-                	        cout<<BOLD("EMAIL")<<"..............."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-	                        getline(cin,Email);
-				j.setEmail(Email);
+        	        	        cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
 
-        	                cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
-
-				}
+				};
 				break;
-			}
-		}
+
+				default:
+					cout << "Opção inválida, tente novamente." << endl;
+			}; // FIM DO SWITCH - CADASTRO PESSOA FISICA|JURIDICA 
+		};
 		break;
 
-		case '2':
+		case '2': // OPÇÃO CONSULTA
 		{
 			cout<<"Opção Consulta: "<<opcao<<endl;
 
@@ -265,50 +300,53 @@ int main()
 				exit(1);
 			}
 
-			cout << left << setw(18) << "CPF" << setw(30) << "Nome" << setw(30) << "Endereço" << setw(30) << "Telefone" << "Email" << endl;
+			cout << left << setw(18) << "CPF" << setw(30) << "Nome" << setw(50) << "Endereço" << setw(30) << "Telefone" << "Email" << endl;
 
-			//while ( lerAgenda >> CPF >> Nome >> Endereco >> Telefone >> Email ){
-			for (i=1 ; i<=5 ; i++){
-				getline(lerAgenda,stream,';');
+			string linha;
+			
+			contador=0;
 
-				switch(i)
-				{
-					case 1:
-					cout << left << setw(18) << stream; //CPF
-					break;
-					case 2:
-					cout << setw(30) << stream; //NOME
-					break;
-					case 3:
-					cout << setw(29) << stream; //ENDERECO
-					break;
-					case 4:
-					cout << setw(30) << stream; //Telefone
-					break;
-					case 5:
-					cout << stream << endl; //Email
+			while(getline(lerAgenda,linha))
+			{
+				contador += 1;
+				stringstream linestream(linha);
+
+				for (i=1 ; i<=5 ; i++){
+					getline(linestream,stream,';');
+
+					switch(i)
+					{
+						case 1:
+						cout << left << setw(18) << stream; //CPF
+						break;
+						case 2:
+						cout << setw(30) << stream; //NOME
+						break;
+						case 3:
+						cout << setw(49) << stream; //ENDERECO
+						break;
+						case 4:
+						cout << setw(30) << stream; //Telefone
+						break;
+						case 5:
+						cout << stream << endl; //Email
+					}
 				}
-
-				//cout << left << setw(10) << f.getCPF() << setw(13) << f.getNome() << f.getTelefone() <<  endl;
-				//cout << left << setw(15) << CPF << setw(30) << Nome << Telefone <<  endl;
-				//cout << stream << ;
-				//getline(lerAgenda,stream,';');
-				//cout << CPF << endl;
-				//cout << left << setw(18) << CPF << setw(30) << Nome << setw(30) << Endereco << setw(30) << Telefone << Email << endl;
-				}
+			}
 			lerAgenda.close();
+			cout << contador << " entradas." <<endl;
 		}
 		break;
 
-		case '3':
+		case '3': // OPÇÃO EDITAR
 			cout<<"Opção Editar: "<<opcao<<endl;
 		break;
 			
-		case '4':
+		case '4': // OPÇÃO REMOVER
 			cout<<"Opção Remover: "<<opcao<<endl;
 		break;
 			
-		case '0':
+		case '0': // OPÇÃO FECHAR
 			cout<<"Opção Fechar: "<<opcao<<endl;
 		break;
 			
