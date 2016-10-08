@@ -395,7 +395,7 @@ int main()
 				}
 			}
 			lerAgenda.close();
-			cout<<contador<<" entradas."<<endl;
+			cout<<contador<<" entrada(s)."<<endl;
 			cout<<endl;
 			cout<<"Pressione a tecla [ENTER] fechar a exibição.";
 			cin.get();
