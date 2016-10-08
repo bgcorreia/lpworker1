@@ -102,38 +102,47 @@ void pessoaJuridica::setNomeFantasia( string NomeFantasia ){ nomeFantasia=NomeFa
 class mensagem
 {
 public:
-	void boasvidas()
-	{
+        void logoAgenda()
+        {
 
-		cout << BOLD("		             _       ") <<endl;
-		cout << BOLD("                            | |      ") <<endl;
-		cout << BOLD("   __ _  __ _  ___ _ __   __| | __ _ ") <<endl;
-		cout << BOLD("  / _` |/ _` |/ _ \\ '_ \\ / _` |/ _` |") <<endl;
-		cout << BOLD(" | (_| | (_| |  __/ | | | (_| | (_| |") <<endl;
-		cout << BOLD("  \\__,_|\\__, |\\___|_| |_|\\__,_|\\__,_|") <<endl;
-		cout << BOLD("         __/ |                       ") <<endl;
-		cout << BOLD("        |___/                        ") <<endl<<endl;
+                cout<<BOLD("                             _       ") <<endl;
+                cout<<BOLD("                            | |      ") <<endl;
+                cout<<BOLD("   __ _  __ _  ___ _ __   __| | __ _ ") <<endl;
+                cout<<BOLD("  / _` |/ _` |/ _ \\ '_ \\ / _` |/ _` |") <<endl;
+                cout<<BOLD(" | (_| | (_| |  __/ | | | (_| | (_| |") <<endl;
+                cout<<BOLD("  \\__,_|\\__, |\\___|_| |_|\\__,_|\\__,_|") <<endl;
+                cout<<BOLD("         __/ |                       ") <<endl;
+                cout<<BOLD("        |___/                        ") <<endl<<endl;
+        }
+
+	void menuHome()
+	{
+		cout<<BOLD("HOME")<<"  CADASTRO  CONSULTA  EDITAR  REMOVER"<<endl<<endl;
 	}
 
-	void cadastro()
+	void menuCadastro()
 	{
-
-		cout << BOLD("                _           _             ") <<endl;
-		cout << BOLD("               | |         | |            ") <<endl;
-		cout << BOLD("   ___ __ _  __| | __ _ ___| |_ _ __ ___  ") <<endl;
-		cout << BOLD("  / __/ _` |/ _` |/ _` / __| __| '__/ _ \\ ") <<endl;
-		cout << BOLD(" | (_| (_| | (_| | (_| \\__ \\ |_| | | (_) |") <<endl;
-		cout << BOLD("  \\___\\__,_|\\__,_|\\__,_|___/\\__|_|  \\___/ ") <<endl<<endl;
-                                          
+		cout<<"HOME  "<<BOLD("CADASTRO")<<"  CONSULTA  EDITAR  REMOVER"<<endl<<endl;
 
 	}
 
-	void opcoes()
+	void menuConsulta()
 	{
-		cout<<"[1] Cadastro\n[2] Consulta\n[3] Editar\n[4] Remover\n[0] Fechar\nOpcao [ ]\b\b";
+		cout<<"HOME  CADASTRO  "<<BOLD("CONSULTA")<<"  EDITAR  REMOVER"<<endl<<endl;
+
 	}
 
+	void menuEditar()
+	{
+		cout<<"HOME  CADASTRO  CONSULTA  "<<BOLD("EDITAR")<<"  REMOVER"<<endl<<endl;
+
+	}
 	
+	void menuRemover()
+	{
+		cout<<"HOME  CADASTRO  CONSULTA  EDITAR  "<<BOLD("REMOVER")<<endl<<endl;
+
+	}
 
 };
 
@@ -146,7 +155,7 @@ int main()
 	string CPF, CNPJ;
 	string stream;
 	int i, contador;
-	char opcao, tipoPessoa;
+	char opcao, tipoPessoa, salvar;
 
 	pessoaFisica f;
 	pessoaJuridica j;
@@ -157,15 +166,20 @@ int main()
 
 	mensagem exibir;
 
+	// WHILE MENU PRINCIPAL
+	while(opcao!='0'){
+
 	system("clear");
 
-	exibir.boasvidas();
+	exibir.logoAgenda();
+	exibir.menuHome();
+
 	cout<<BOLD("[1]")<<" Cadastro"<<endl;
 	cout<<BOLD("[2]")<<" Consulta"<<endl;
 	cout<<BOLD("[3]")<<" Editar"<<endl;
 	cout<<BOLD("[4]")<<" Remover"<<endl;
-	cout<<BOLD("[0]")<<" Fechar"<<endl;
-	cout<<"Opcao "<<BOLD("[ ]\b\b");
+	cout<<BOLD("[0]")<<" Fechar"<<endl<<endl;
+	cout<<"Opção "<<BOLD("[ ]\b\b");
 	cin>>opcao;
 	cin.ignore(1000, '\n');
 	cout<<endl;
@@ -174,14 +188,22 @@ int main()
 	{
 		case '1': // OPÇÃO CADASTRO
 		{
+		
+		// WHILE - SUBMENU CADASTRO		
+		while(opcao!='9'){
+
+		system("clear");
+
+		exibir.logoAgenda();
+		exibir.menuCadastro();
+
 		cout<<BOLD("[F]")<<" Pessoa Física"<<endl;
 		cout<<BOLD("[J]")<<" Pessoa Jurídica"<<endl;
-		cout<<BOLD("[0]")<<" Voltar"<<endl;
+		cout<<BOLD("[9]")<<" Voltar"<<endl<<endl;
 		cout<<"Opção "<<BOLD("[ ]\b\b");
 		cin>>opcao;
 		cin.ignore(1000, '\n');
 		
-
 			switch(opcao)
 			{
 				// CADASTRO PESSOA FISICA
@@ -190,7 +212,8 @@ int main()
 				{
 					system("clear");
 
-					exibir.cadastro();
+					exibir.logoAgenda();
+					exibir.menuCadastro();
 
 					// Exibe o texto abaixo
 					cout<<"Opção Cadastro, Pessoa Física."<<endl<<endl;
@@ -217,29 +240,51 @@ int main()
 					cout<<BOLD("EMAIL")<<"..............."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 					getline(cin,Email);
 					f.setEmail(Email);
+
+					cout<<endl;
+					cout<<"Deseja salvar entrada? "<<"[s/n] :"<<BOLD("[")<<" "<<BOLD("]\b\b");
+					cin>>salvar;
+
+					switch(salvar){
+					case 'S':
+					case 's':					
+					{	
+						lerAgenda.open("base.dat");
 				
-					lerAgenda.open("base.dat");
-				
-					// TESTA SE ARQUIVO EXISTE
-					if (lerAgenda.good()){
-						cout << "Salvo em Base existente." <<endl;
-						escreverAgenda.open("base.dat", ios::app);
-					} else {
-						cout << "Base não existe, criada."<<endl;
-						escreverAgenda.open("base.dat"); //PADRÃO É OUT, CRIA O ARQUIVO
-					};
+						// TESTA SE ARQUIVO EXISTE
+						if (lerAgenda.good()){
+							cout << "Salvo em Base existente." <<endl;
+							escreverAgenda.open("base.dat", ios::app);
+						} else {
+							cout << "Base não existe, criada."<<endl;
+							escreverAgenda.open("base.dat"); //PADRÃO É OUT, CRIA O ARQUIVO
+						}
 
-					lerAgenda.close();
+						lerAgenda.close();
 
-					if ( !escreverAgenda ){
-						cerr<<"Arquivo não pôde ser criado."<<endl;
-					} else {
-						escreverAgenda << f.getCPF() << ";" << f.getNome() << ";" << f.getEndereco() << ";" << f.getTelefone() << ";" << f.getEmail() << endl;
-						escreverAgenda.close();
-						cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
-					};
+						if ( !escreverAgenda ){
+							cerr<<"Arquivo não pôde ser criado."<<endl;
+						} else {
+							escreverAgenda << f.getCPF() << ";" << f.getNome() << ";" << f.getEndereco() << ";" << f.getTelefone() << ";" << f.getEmail() << endl;
+							escreverAgenda.close();
+							cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
+							system("sleep 1");
+						}
+					
+					} // FIM CASE - SIM
+					break;
+					
+					case 'N':
+					case 'n':
+					{
+						cout<<"Entrada não salva."<<endl<<endl;
+						system("sleep 1");
+					} // FIM CASE - NAO
+					break;
 
-				};
+					} // FIM SWITCH - SALVAR
+
+				}
 				break;
 
 				// CADASTRO PESSOA JURIDICA
@@ -280,19 +325,34 @@ int main()
 
         	        	        cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
 
-				};
+				}
+				break;
+
+				case '9':
+				{
+					cout<<"Voltar."<<endl;
+				}
 				break;
 
 				default:
-					cout << "Opção inválida, tente novamente." << endl;
-			}; // FIM DO SWITCH - CADASTRO PESSOA FISICA|JURIDICA 
-		};
+					cout<<"Opção inválida, tente novamente."<<endl<<endl;
+					system("sleep 1");
+
+			} // FIM DO SWITCH - CADASTRO PESSOA FISICA|JURIDICA 
+
+		} // FIM WHILE - SUBMENU - CADASTRO
+
+		} // FIM CASE - OPCAO 1 - CADASTRO
 		break;
 
 		case '2': // OPÇÃO CONSULTA
 		{
-			cout<<"Opção Consulta: "<<opcao<<endl;
-
+			system("clear");
+			
+			exibir.logoAgenda();
+	                cout<<"HOME  CADASTRO  "<<BOLD("CONSULTA")<<"  EDITAR  REMOVER";
+        	        cout<<endl<<endl;
+			
 			lerAgenda.open("base.dat",ios::in);
 
 			if ( !lerAgenda ){
@@ -300,7 +360,8 @@ int main()
 				exit(1);
 			}
 
-			cout << left << setw(18) << "CPF" << setw(30) << "Nome" << setw(50) << "Endereço" << setw(30) << "Telefone" << "Email" << endl;
+			cout << left << setw(26) << BOLD("CPF") << setw(38) << BOLD("NOME") << setw(58) << BOLD("ENDEREÇO") << setw(38) << BOLD("TELEFONE") << BOLD("EMAIL") << endl;
+			//cout << left << setw(18) << "CPF" << setw(30) << "Nome" << setw(50) << "Endereço" << setw(30) << "Telefone" << "Email" << endl;
 
 			string linha;
 			
@@ -317,24 +378,27 @@ int main()
 					switch(i)
 					{
 						case 1:
-						cout << left << setw(18) << stream; //CPF
-						break;
+							cout << left << setw(18) << stream; // CPF
+							break;
 						case 2:
-						cout << setw(30) << stream; //NOME
-						break;
+							cout << setw(30) << stream; // NOME
+							break;
 						case 3:
-						cout << setw(49) << stream; //ENDERECO
-						break;
+							cout << setw(49) << stream; // ENDERECO
+							break;
 						case 4:
-						cout << setw(30) << stream; //Telefone
-						break;
+							cout << setw(30) << stream; // TELEFONE
+							break;
 						case 5:
-						cout << stream << endl; //Email
+							cout << stream << endl; // EMAIL
 					}
 				}
 			}
 			lerAgenda.close();
-			cout << contador << " entradas." <<endl;
+			cout<<contador<<" entradas."<<endl;
+			cout<<endl;
+			cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+			cin.get();
 		}
 		break;
 
@@ -346,11 +410,18 @@ int main()
 			cout<<"Opção Remover: "<<opcao<<endl;
 		break;
 			
-		case '0': // OPÇÃO FECHAR
-			cout<<"Opção Fechar: "<<opcao<<endl;
-		break;
+		default: // OPÇÃO FECHAR
+			cout<<"Opção inválida, tente novamente."<<endl;
+			system("sleep 1");
 			
-	}
+		case '0': // OPÇÃO FECHAR
+			cout<<"Fechando."<<endl;
+		break;
+		
+			
+	} // FIM SWITCH OPCAO - MENU PRINCIPAL
+
+	} // FIM WHILE INICIAL
 
 	return 0;
 
