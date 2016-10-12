@@ -21,27 +21,43 @@ using namespace std;
 class pessoa
 {
 private:
-	string nome ;
-	string endereco ;
+	int id;
+	string nome;
+	string endereco;
 	string telefone;
+	int idNow;
 public:
 	string getNome();
 	string getEndereco();
 	string getTelefone();
+	int getID();
+
+	int verificaID(){
+
+
+
+
+
+	return idNow ;
+
+	}
 	
 	void setNome(string);
 	void setEndereco(string);
 	void setTelefone(string);
+	void setID(int);
 };
 
 // METODO(S) GET - CLASSE PESSOA
 string pessoa::getNome(){ return nome; }
 string pessoa::getEndereco(){ return endereco; }
 string pessoa::getTelefone(){ return telefone; }
+int pessoa::getID(){ return id; }
 // METODO(S) SET - CLASSE PESSOA
 void pessoa::setNome( string Nome ){ nome = Nome ; }
 void pessoa::setEndereco( string Endereco ){ endereco = Endereco ; }
 void pessoa::setTelefone( string Telefone ){ telefone = Telefone; }
+void pessoa::setID( int ID ){ id=ID; }
 
 
 // CLASSE CONTATO
@@ -50,6 +66,7 @@ class contato
 private:
 	string email ;
 public:
+	
 	string getEmail();
 	void setEmail(string);
 };
@@ -154,11 +171,12 @@ int main()
 	string Nome, NomeFantasia, Endereco, Email, Telefone;
 	string CPF, CNPJ;
 	string stream;
-	int i, contador;
+	int id, i, contador;
+	int numCamposPF=6 ;
 	char opcao, tipoPessoa, salvar;
 
-	pessoaFisica f;
-	pessoaJuridica j;
+	pessoaFisica pf;
+	pessoaJuridica pj;
 
 	// INSTANCIA OBJETO - CONTEUDO SERA ANEXADO QUANDO PERTINENTE
 	ofstream escreverAgenda;
@@ -215,6 +233,10 @@ int main()
 					exibir.logoAgenda();
 					exibir.menuCadastro();
 
+					/*
+					CHAMAR FUNÇÃO QUE COLOCA ID CORRETO
+					*/
+
 					// Exibe o texto abaixo
 					cout<<"Opção Cadastro, Pessoa Física."<<endl<<endl;
 
@@ -223,23 +245,23 @@ int main()
 
 					cout<<BOLD("CPF")<<"................."<<BOLD("[")<<".............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 					getline(cin,CPF);
-					f.setCPF(CPF);
+					pf.setCPF(CPF);
 			
 					cout<<BOLD("NOME")<<"................"<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 					getline(cin,Nome);
-					f.setNome(Nome);				
+					pf.setNome(Nome);				
 
 					cout<<BOLD("ENDEREÇO")<<"............"<<BOLD("[")<<".................................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 					getline(cin,Endereco);
-					f.setEndereco(Endereco);
+					pf.setEndereco(Endereco);
 			
 					cout<<BOLD("TELEFONE")<<"............"<<BOLD("[")<<"..............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 					getline(cin,Telefone);
-					f.setTelefone(Telefone);
+					pf.setTelefone(Telefone);
 
 					cout<<BOLD("EMAIL")<<"..............."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 					getline(cin,Email);
-					f.setEmail(Email);
+					pf.setEmail(Email);
 
 					cout<<endl;
 					cout<<"Deseja salvar entrada? "<<"[s/n] :"<<BOLD("[")<<" "<<BOLD("]\b\b");
@@ -265,7 +287,7 @@ int main()
 						if ( !escreverAgenda ){
 							cerr<<"Arquivo não pôde ser criado."<<endl;
 						} else {
-							escreverAgenda << f.getCPF() << ";" << f.getNome() << ";" << f.getEndereco() << ";" << f.getTelefone() << ";" << f.getEmail() << endl;
+							escreverAgenda << pf.getCPF() << ";" << pf.getNome() << ";" << pf.getEndereco() << ";" << pf.getTelefone() << ";" << pf.getEmail() << endl;
 							escreverAgenda.close();
 							cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
 							system("sleep 1");
@@ -301,27 +323,27 @@ int main()
 
 					cout<<BOLD("CNPJ")<<"................"<<BOLD("[")<<".................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 					getline(cin,CNPJ);
-					j.setCNPJ(CNPJ);
+					pj.setCNPJ(CNPJ);
                         
 					cout<<BOLD("NOME FANTASIA")<<"......."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 	        	                getline(cin,NomeFantasia);
-					j.setNomeFantasia(NomeFantasia);
+					pj.setNomeFantasia(NomeFantasia);
 
 					cout<<BOLD("RAZÃO SOCIAL")<<"........."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		                        getline(cin,Nome);
-					j.setNome(Nome);
+					pj.setNome(Nome);
                         
 					cout<<BOLD("ENDEREÇO")<<"............"<<BOLD("[")<<".................................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 	        	                getline(cin,Endereco);
-					j.setEndereco(Endereco);
+					pj.setEndereco(Endereco);
 
 		                        cout<<BOLD("TELEFONE")<<"............"<<BOLD("[")<<"..............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 	        	                getline(cin,Telefone);
-					j.setTelefone(Telefone);
+					pj.setTelefone(Telefone);
 	
         	        	        cout<<BOLD("EMAIL")<<"..............."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 	        	                getline(cin,Email);
-					j.setEmail(Email);
+					pj.setEmail(Email);
 
         	        	        cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
 
@@ -360,7 +382,7 @@ int main()
 				exit(1);
 			}
 
-			cout << left << setw(26) << BOLD("CPF") << setw(38) << BOLD("NOME") << setw(58) << BOLD("ENDEREÇO") << setw(38) << BOLD("TELEFONE") << BOLD("EMAIL") << endl;
+			cout << left << setw(12) << BOLD("ID") << setw(38) << BOLD("NOME") << setw(26) << BOLD("CPF") << setw(58) << BOLD("ENDEREÇO") << setw(38) << BOLD("TELEFONE") << BOLD("EMAIL") << endl;
 			//cout << left << setw(18) << "CPF" << setw(30) << "Nome" << setw(50) << "Endereço" << setw(30) << "Telefone" << "Email" << endl;
 
 			string linha;
@@ -372,29 +394,49 @@ int main()
 				contador += 1;
 				stringstream linestream(linha);
 
-				for (i=1 ; i<=5 ; i++){
+				for (i=1 ; i<=numCamposPF ; i++){
 					getline(linestream,stream,';');
 
 					switch(i)
 					{
 						case 1:
-							cout << left << setw(18) << stream; // CPF
+							// CONVERSÃO STRING P/ INTEIRO
+							id = atoi(stream.c_str());
+							pf.setID(id);
+							//id = stream ;  
+							//cout << left << setw(1) << stream; //ID
 							break;
 						case 2:
-							cout << setw(30) << stream; // NOME
+							pf.setNome(stream);
+							//cpf = stream ;
+							//cout <<  setw(18) << stream; // CPF
 							break;
 						case 3:
-							cout << setw(49) << stream; // ENDERECO
+							pf.setCPF(stream);
+							//nome = stream ;
+							//cout << setw(30) << stream; // NOME
 							break;
 						case 4:
-							cout << setw(30) << stream; // TELEFONE
+							pf.setEndereco(stream);
+							//endereco = stream ;
+							//cout << setw(49) << stream; // ENDERECO
 							break;
 						case 5:
-							cout << stream << endl; // EMAIL
+							pf.setTelefone(stream);
+							//telefone = stream ;
+							//cout << setw(30) << stream; // TELEFONE
+							break;
+						case 6:
+							pf.setEmail(stream);
+							//email = stream ;
+							//cout << stream << endl; // EMAIL
 					}
 				}
 			}
 			lerAgenda.close();
+
+			cout << left << setw(4) << pf.getID() << setw(30) << pf.getNome() << setw(18) << pf.getCPF() << setw(49) << pf.getEndereco() << setw(30) << pf.getTelefone() << pf.getEmail() << endl  ;
+			
 			cout<<contador<<" entrada(s)."<<endl;
 			cout<<endl;
 			cout<<"Pressione a tecla [ENTER] fechar a exibição.";
