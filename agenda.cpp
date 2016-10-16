@@ -15,32 +15,29 @@ VERSÃO: 0.001
 #include <cstdlib> // DESCOBRIR
 #include "colors.h" // FUNCOES PARA FORMATAR TEXTO
 
+#define FILEPF "pf.db"
+#define FILEPJ "pj.db"
+
 using namespace std;
 
 // CLASSE PESSOA
 class pessoa
 {
 private:
-	int id;
 	string nome;
 	string endereco;
 	string telefone;
 	string email;
-	int idNow;
 public:
 	string getNome();
 	string getEndereco();
 	string getTelefone();
 	string getEmail();
-	int getID();
-
-	int verificaID(){ return idNow ; }
 	
 	void setNome(string);
 	void setEndereco(string);
 	void setTelefone(string);
 	void setEmail(string);
-	void setID(int);
 };
 
 // METODO(S) GET - CLASSE PESSOA
@@ -48,13 +45,12 @@ string pessoa::getNome(){ return nome; }
 string pessoa::getEndereco(){ return endereco; }
 string pessoa::getTelefone(){ return telefone; }
 string pessoa::getEmail(){ return email; }
-int pessoa::getID(){ return id; }
+
 // METODO(S) SET - CLASSE PESSOA
 void pessoa::setNome( string Nome ){ nome = Nome ; }
 void pessoa::setEndereco( string Endereco ){ endereco = Endereco ; }
 void pessoa::setTelefone( string Telefone ){ telefone = Telefone; }
 void pessoa::setEmail( string Email ){ email=Email; }
-void pessoa::setID( int ID ){ id=ID; }
 
 
 // CLASSE PESSOA FISICA
@@ -101,20 +97,26 @@ class contato: public pessoaFisica
 {
 private:
 	char tipo;
+	int id, idNow;
 public:
 
 	char getTipo();
-	void setTipo(char);
+	int getID();
+	int verificaID(){ return idNow ; }
 
 	void cadastra(char, contato *);
-	void consulta(char);
+	void consulta(char, contato *);
 	void edita(char);
 	void remove(char);
+
+	void setTipo(char);
+	void setID(int);
 	
 };
 
 // METODO(S) GET - CLASSE CONTATO
 char contato::getTipo(){ return tipo; }
+int contato::getID(){ return id; }
 
 void contato::cadastra(char Tipo, contato *p){
 
@@ -130,6 +132,7 @@ void contato::cadastra(char Tipo, contato *p){
 	if (Tipo == 'F'){
 		/*
 		CHAMAR FUNÇÃO QUE COLOCA ID CORRETO
+		CHEGAR IDs CADASTRADOS E RETORNAR O CORRETO
 		*/
 
 		// Exibe o texto abaixo
@@ -166,15 +169,15 @@ void contato::cadastra(char Tipo, contato *p){
 		case 'S':
 		case 's':					
 		{	
-			lerAgenda.open("base.dat");
+			lerAgenda.open(FILEPF);
 
 			// TESTA SE ARQUIVO EXISTE
 			if (lerAgenda.good()){
 				cout << "Salvo em Base existente." <<endl;
-				escreverAgenda.open("base.dat", ios::app);
+				escreverAgenda.open(FILEPF, ios::app);
 			} else {
 				cout << "Base não existe, criada."<<endl;
-				escreverAgenda.open("base.dat"); //PADRÃO É OUT, CRIA O ARQUIVO
+				escreverAgenda.open(FILEPF); //PADRÃO É OUT, CRIA O ARQUIVO
 			}
 
 			lerAgenda.close();
@@ -182,7 +185,7 @@ void contato::cadastra(char Tipo, contato *p){
 			if ( !escreverAgenda ){
 				cerr<<"Arquivo não pôde ser criado."<<endl;
 			} else {
-				escreverAgenda << p->getCPF() << ";" << p->getNome() << ";" << p->getEndereco() << ";" << p->getTelefone() << ";" << p->getEmail() << endl;
+				escreverAgenda << p->getTipo() << ";" << p->getID()  << ";" << p->getNome() << ";" << p->getCPF() << ";" << p->getEndereco() << ";" << p->getTelefone() << ";" << p->getEmail() << endl;
 				escreverAgenda.close();
 				cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
 				system("sleep 1");
@@ -208,16 +211,16 @@ void contato::cadastra(char Tipo, contato *p){
 		*/
 
 		// Exibe o texto abaixo
-		cout<<"Opção Cadastro, Pessoa Física."<<endl<<endl;
+		cout<<"Opção Cadastro, Pessoa Juridica."<<endl<<endl;
 
 		cout<<"Por favor, preencha o formulário abaixo."<<endl;
 		cout<<BLNK("ATENÇÃO!")<<" Formulários que não seguirem as orientações dos campos, não serão salvos."<<endl<<endl;
 
-		cout<<BOLD("CPF")<<"................."<<BOLD("[")<<".............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		cout<<BOLD("CNPJ")<<"................."<<BOLD("[")<<".............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,CPF);
 		p->setCPF(CPF);
 
-		cout<<BOLD("NOME")<<"................"<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		cout<<BOLD("NOME FANTASIA")<<"........"<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,Nome);
 		p->setNome(Nome);				
 
@@ -241,15 +244,15 @@ void contato::cadastra(char Tipo, contato *p){
 		case 'S':
 		case 's':					
 		{	
-			lerAgenda.open("base.dat");
+			lerAgenda.open(FILEPJ);
 
 			// TESTA SE ARQUIVO EXISTE
 			if (lerAgenda.good()){
 				cout << "Salvo em Base existente." <<endl;
-				escreverAgenda.open("base.dat", ios::app);
+				escreverAgenda.open(FILEPJ, ios::app);
 			} else {
 				cout << "Base não existe, criada."<<endl;
-				escreverAgenda.open("base.dat"); //PADRÃO É OUT, CRIA O ARQUIVO
+				escreverAgenda.open(FILEPJ); //PADRÃO É OUT, CRIA O ARQUIVO
 			}
 
 			lerAgenda.close();
@@ -257,7 +260,7 @@ void contato::cadastra(char Tipo, contato *p){
 			if ( !escreverAgenda ){
 				cerr<<"Arquivo não pôde ser criado."<<endl;
 			} else {
-				escreverAgenda << p->getCPF() << ";" << p->getNome() << ";" << p->getEndereco() << ";" << p->getTelefone() << ";" << p->getEmail() << endl;
+				escreverAgenda << p->getTipo() << ";" << p->getNome() << ";" << p->getCPF() << ";" << p->getEndereco() << ";" << p->getTelefone() << ";" << p->getEmail() << endl;
 				escreverAgenda.close();
 				cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
 				system("sleep 1");
@@ -280,89 +283,107 @@ void contato::cadastra(char Tipo, contato *p){
 
 }
 
-/*
-void contato::consulta(char){
 
-	cout<<"HOME  CADASTRO  "<<BOLD("CONSULTA")<<"  EDITAR  REMOVER";
-	cout<<endl<<endl;
+void contato::consulta(char Tipo, contato *p){
 
-	lerAgenda.open("base.dat",ios::in);
+	string stream;
+	int  i, contador;
+	int numCamposPF=7 ;
 
-	if ( !lerAgenda ){
-		cerr << "Arquivo não pode ser aberto." << endl;
-		exit(1);
-	}
+	ofstream escreverAgenda;
+	ifstream lerAgenda;
 
-	cout << left << setw(12) << BOLD("ID") << setw(38) << BOLD("NOME") << setw(26) << BOLD("CPF") << setw(58) << BOLD("ENDEREÇO") << setw(38) << BOLD("TELEFONE") << BOLD("EMAIL") << endl;
-	//cout << left << setw(18) << "CPF" << setw(30) << "Nome" << setw(50) << "Endereço" << setw(30) << "Telefone" << "Email" << endl;
+	if ( Tipo == 'F'){
 
-	string linha;
+		//cout<<"HOME  CADASTRO  "<<BOLD("CONSULTA")<<"  EDITAR  REMOVER";
 
-	contador=0;
+		lerAgenda.open(FILEPF,ios::in);
 
-	while(getline(lerAgenda,linha))
-	{
-		contador += 1;
-		stringstream linestream(linha);
-
-		for (i=1 ; i<=numCamposPF ; i++){
-			getline(linestream,stream,';');
-
-			switch(i)
-			{
-				case 1:
-					// CONVERSÃO STRING P/ INTEIRO
-					//id = atoi(stream.c_str());
-					p->setID(atoi(stream.c_str()));
-					//id = stream ;  
-					//cout << left << setw(1) << stream; //ID
-					break;
-				case 2:
-					p->setNome(stream);
-					//cpf = stream ;
-					//cout <<  setw(18) << stream; // CPF
-					break;
-				case 3:
-					p->setCPF(stream);
-					//nome = stream ;
-					//cout << setw(30) << stream; // NOME
-					break;
-				case 4:
-					p->setEndereco(stream);
-					//endereco = stream ;
-					//cout << setw(49) << stream; // ENDERECO
-					break;
-				case 5:
-					p->setTelefone(stream);
-					//telefone = stream ;
-					//cout << setw(30) << stream; // TELEFONE
-					break;
-				case 6:
-					p->setEmail(stream);
-					//email = stream ;
-					//cout << stream << endl; // EMAIL
-			}
+		if ( !lerAgenda ){
+			cerr << "Arquivo não pode ser aberto." << endl;
+			exit(1);
 		}
+
+		cout << left << setw(12) << BOLD("ID") << setw(38) << BOLD("NOME") << setw(26) << BOLD("CPF") << setw(58) << BOLD("ENDEREÇO") << setw(38) << BOLD("TELEFONE") << BOLD("EMAIL") << endl;
+		//cout << left << setw(18) << "CPF" << setw(30) << "Nome" << setw(50) << "Endereço" << setw(30) << "Telefone" << "Email" << endl;
+
+		string linha;
+
+		contador=0;
+
+		while(getline(lerAgenda,linha))
+		{
+			contador += 1;
+			stringstream linestream(linha);
+
+			for (i=1 ; i<=numCamposPF ; i++){
+				getline(linestream,stream,';');
+
+				switch(i)
+				{
+					case 1:
+						p->setTipo(stream[0]);
+						break;
+					case 2:
+						// CONVERSÃO STRING P/ INTEIRO
+						//id = atoi(stream.c_str());
+						p->setID(atoi(stream.c_str()));
+						//id = stream ;  
+						//cout << left << setw(1) << stream; //ID
+						break;
+					case 3:
+						p->setNome(stream);
+						//cpf = stream ;
+						//cout <<  setw(18) << stream; // CPF
+						break;
+					case 4:
+						p->setCPF(stream);
+						//nome = stream ;
+						//cout << setw(30) << stream; // NOME
+						break;
+					case 5:
+						p->setEndereco(stream);
+						//endereco = stream ;
+						//cout << setw(49) << stream; // ENDERECO
+						break;
+					case 6:
+						p->setTelefone(stream);
+						//telefone = stream ;
+						//cout << setw(30) << stream; // TELEFONE
+						break;
+					case 7:
+						p->setEmail(stream);
+						//email = stream ;
+						//cout << stream << endl; // EMAIL
+				}
+			}
+		
+		// PRINTA NA TELA LINHA A LINHA
+		cout << left << setw(4) << p->getID() << setw(30) << p->getNome() << setw(18) << p->getCPF() << setw(49) << p->getEndereco() << setw(30) << p->getTelefone() << p->getEmail() << endl  ;
+		}
+		lerAgenda.close();
+
+		//cout << left << setw(4) << p->getID() << setw(30) << p->getNome() << setw(18) << p->getCPF() << setw(49) << p->getEndereco() << setw(30) << p->getTelefone() << p->getEmail() << endl  ;
+
+		cout<<endl<<contador<<" entrada(s)."<<endl;
+		cout<<endl;
+		cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+		cin.get();
+
+	} else {
+
+		//TIPO PESSOA JURIDICA
+		cout << "PESSOA JURIDICA" ;
+
 	}
-	lerAgenda.close();
-
-	cout << left << setw(4) << p->gettID() << setw(30) << p->gettNome() << setw(18) << p->gettCPF() << setw(49) << p->gettEndereco() << setw(30) << p->gettTelefone() << p->gettEmail() << endl  ;
-
-	cout<<endl<<contador<<" entrada(s)."<<endl;
-	cout<<endl;
-	cout<<"Pressione a tecla [ENTER] fechar a exibição.";
-	cin.get();
-
-
-
 
 
 }
-*/
+
 
 // METODO(S) SET - CLASSE CONTATO
 void contato::setTipo(char Tipo){ tipo=Tipo; }
-
+void contato::setID(int ID){ id=ID; }
 
 // CLASSE MENSAGEM
 class mensagem
@@ -417,9 +438,6 @@ public:
 int main()
 {
 
-	string stream;
-	int  i, contador;
-	int numCamposPF=6 ;
 	char opcao, tipoPessoa;
 
 	// CRIA INSTANCIA	
@@ -517,13 +535,70 @@ int main()
 
 		case '2': // OPÇÃO CONSULTA
 		{
-			system("clear");
-			
-			exibir.logoAgenda();
 
-			//CONSULTA
+		// WHILE - SUBMENU CADASTRO		
+		while(opcao!='9'){
 
-		}
+		system("clear");
+
+		exibir.logoAgenda();
+		exibir.menuConsulta();
+
+		cout<<BOLD("[F]")<<" Pessoa Física"<<endl;
+		cout<<BOLD("[J]")<<" Pessoa Jurídica"<<endl;
+		cout<<BOLD("[9]")<<" Voltar"<<endl<<endl;
+		cout<<"Opção "<<BOLD("[ ]\b\b");
+		cin>>opcao;
+		cin.ignore(1000, '\n');
+		
+			switch(opcao)
+			{
+				// CONSULTA PESSOA FISICA
+				case 'f':
+				case 'F':
+				{
+					system("clear");
+
+					exibir.logoAgenda();
+					exibir.menuConsulta();
+
+					//CONSULTA
+					p.setTipo('F');
+					p.consulta(p.getTipo(),&p);
+
+				}
+				break;
+
+				// CONSULTA PESSOA JURIDICA
+				case 'j':
+				case 'J':
+				{
+					system("clear");
+
+					exibir.logoAgenda();
+					exibir.menuConsulta();
+
+					//CONSULTA
+					p.setTipo('J');
+					p.consulta(p.getTipo(),&p);					
+				}
+				break;
+
+				case '9':
+				{
+					cout<<"Voltar."<<endl;
+				}
+				break;
+
+				default:
+					cout<<"Opção inválida, tente novamente."<<endl<<endl;
+					system("sleep 1");
+
+			} // FIM DO SWITCH - CONSULTA PESSOA FISICA|JURIDICA 
+
+		} // FIM WHILE - SUBMENU - CONSULTA
+
+		} // FIM CASE - OPCAO 2 - CONSULTA
 		break;
 
 		case '3': // OPÇÃO EDITAR
