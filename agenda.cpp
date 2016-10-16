@@ -20,6 +20,55 @@ VERSÃO: 0.001
 
 using namespace std;
 
+// CLASSE MENSAGEM
+class mensagem
+{
+public:
+        void logoAgenda()
+        {
+
+                cout<<BOLD("                             _       ") <<endl;
+                cout<<BOLD("                            | |      ") <<endl;
+                cout<<BOLD("   __ _  __ _  ___ _ __   __| | __ _ ") <<endl;
+                cout<<BOLD("  / _` |/ _` |/ _ \\ '_ \\ / _` |/ _` |") <<endl;
+                cout<<BOLD(" | (_| | (_| |  __/ | | | (_| | (_| |") <<endl;
+                cout<<BOLD("  \\__,_|\\__, |\\___|_| |_|\\__,_|\\__,_|") <<endl;
+                cout<<BOLD("         __/ |                       ") <<endl;
+                cout<<BOLD("        |___/                        ") <<endl<<endl;
+        }
+
+	void menuHome()
+	{
+		cout<<BOLD("HOME")<<"  CADASTRO  CONSULTA  EDITAR  REMOVER"<<endl<<endl;
+	}
+
+	void menuCadastro()
+	{
+		cout<<"HOME  "<<BOLD("CADASTRO")<<"  CONSULTA  EDITAR  REMOVER"<<endl<<endl;
+
+	}
+
+	void menuConsulta()
+	{
+		cout<<"HOME  CADASTRO  "<<BOLD("CONSULTA")<<"  EDITAR  REMOVER"<<endl<<endl;
+
+	}
+
+	void menuEdita()
+	{
+		cout<<"HOME  CADASTRO  CONSULTA  "<<BOLD("EDITAR")<<"  REMOVER"<<endl<<endl;
+
+	}
+	
+	void menuRemove()
+	{
+		cout<<"HOME  CADASTRO  CONSULTA  EDITAR  "<<BOLD("REMOVER")<<endl<<endl;
+
+	}
+
+};
+
+
 // CLASSE PESSOA
 class pessoa
 {
@@ -93,7 +142,7 @@ void pessoaJuridica::setNomeFantasia( string NomeFantasia ){ nomeFantasia=NomeFa
 
 
 // CLASSE CONTATO
-class contato: public pessoaFisica
+class contato: public pessoaFisica, private mensagem
 {
 private:
 	char tipo;
@@ -102,12 +151,12 @@ public:
 
 	char getTipo();
 	int getID();
-	int verificaID(char, contato*);
+	int verificaID(char);
 
-	void cadastra(char, contato *);
-	void consulta(char, contato *);
-	void edita(char);
-	void remove(char);
+	void cadastra(char, contato*);
+	void consulta(char, contato*, int);
+	void edita(int, char, contato*);
+	void remove(int, char, mensagem*, contato*, int);
 
 	void setTipo(char);
 	void setID(int);
@@ -118,11 +167,10 @@ public:
 char contato::getTipo(){ return tipo; }
 int contato::getID(){ return id; }
 
-int contato::verificaID(char tipo, contato *p){
+int contato::verificaID(char tipo){
 
 	string stream;
-	int  maior, i, contador;
-	int numCamposPF=7;
+	int ID, i, maior=0, contador=0, numCamposPF=7;
 
 	ifstream lerAgenda;
 
@@ -130,12 +178,10 @@ int contato::verificaID(char tipo, contato *p){
 
 	if ( !lerAgenda ){
 		cerr << "Arquivo não pode ser aberto." << endl;
-		cout << "Prosseguindo, diretorio pode nao ter permissao, ou arquivo ainda nao criado." <<endl<<endl;
+		cout << "Prosseguindo, diretorio pode nao ter permissao ou arquivo ainda nao criado." <<endl<<endl;
 	}
 
 	string linha;
-
-	contador=0;
 
 	while(getline(lerAgenda,linha))
 	{
@@ -148,15 +194,20 @@ int contato::verificaID(char tipo, contato *p){
 		        switch(i)
 		        {
 		                case 2:
-		                        p->setID(atoi(stream.c_str()));
+		                        ID=atoi(stream.c_str());
 					break;
 			}
 
 		}
 
-		if ( p->getID() > maior ){
-                	maior = p->getID();
+
+		//cout << "ANTES - ID: " << ID << " | Maior: " << maior << endl; 		
+	
+		if ( ID > maior ){
+                	maior = ID;
 		}
+
+		//cout << "DEPOIS - ID: " << ID << " | Maior: " << maior << endl;
 
 	}
 
@@ -181,13 +232,16 @@ void contato::cadastra(char Tipo, contato *p){
 		CHAMAR FUNÇÃO QUE COLOCA ID CORRETO
 		CHEGAR IDs CADASTRADOS E RETORNAR O CORRETO
 		*/
-		p->setID(p->verificaID(Tipo,p));
+
+		p->setID(p->verificaID(Tipo));
 
 		// Exibe o texto abaixo
 		cout<<"Opção Cadastro, Pessoa Física."<<endl<<endl;
 
 		cout<<"Por favor, preencha o formulário abaixo."<<endl;
 		cout<<BLNK("ATENÇÃO!")<<" Formulários que não seguirem as orientações dos campos, não serão salvos."<<endl<<endl;
+
+		cout<<BOLD("ID")<<".................."<<BOLD("[")<< p->getID() <<BOLD("]")<<endl;
 
 		cout<<BOLD("CPF")<<"................."<<BOLD("[")<<".............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,CPF);
@@ -332,7 +386,7 @@ void contato::cadastra(char Tipo, contato *p){
 }
 
 
-void contato::consulta(char Tipo, contato *p){
+void contato::consulta(char Tipo, contato *p, int pressioneTecla = 1){
 
 	string stream;
 	int  i, contador;
@@ -342,8 +396,6 @@ void contato::consulta(char Tipo, contato *p){
 	ifstream lerAgenda;
 
 	if ( Tipo == 'F'){
-
-		//cout<<"HOME  CADASTRO  "<<BOLD("CONSULTA")<<"  EDITAR  REMOVER";
 
 		lerAgenda.open(FILEPF,ios::in);
 
@@ -414,8 +466,11 @@ void contato::consulta(char Tipo, contato *p){
 
 		cout<<endl<<contador<<" entrada(s)."<<endl;
 		cout<<endl;
-		cout<<"Pressione a tecla [ENTER] fechar a exibição.";
-		cin.get();
+
+		if (pressioneTecla == 1){
+			cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+			cin.get();
+		}
 
 	} else {
 
@@ -428,64 +483,128 @@ void contato::consulta(char Tipo, contato *p){
 }
 
 
-// METODO(S) SET - CLASSE CONTATO
-void contato::setTipo(char Tipo){ tipo=Tipo; }
-void contato::setID(int ID){ id=ID; }
+void contato::edita(int ID, char Tipo, contato *p){
+	//MONTAR MÉTODO PARA EDITAR
+}
 
-// CLASSE MENSAGEM
-class mensagem
-{
-public:
-        void logoAgenda()
-        {
 
-                cout<<BOLD("                             _       ") <<endl;
-                cout<<BOLD("                            | |      ") <<endl;
-                cout<<BOLD("   __ _  __ _  ___ _ __   __| | __ _ ") <<endl;
-                cout<<BOLD("  / _` |/ _` |/ _ \\ '_ \\ / _` |/ _` |") <<endl;
-                cout<<BOLD(" | (_| | (_| |  __/ | | | (_| | (_| |") <<endl;
-                cout<<BOLD("  \\__,_|\\__, |\\___|_| |_|\\__,_|\\__,_|") <<endl;
-                cout<<BOLD("         __/ |                       ") <<endl;
-                cout<<BOLD("        |___/                        ") <<endl<<endl;
-        }
+// MÉTODO REMOVER
+void contato::remove(int removerID, char Tipo, mensagem *exibir, contato *p, int pressioneTecla = 1){
 
-	void menuHome()
-	{
-		cout<<BOLD("HOME")<<"  CADASTRO  CONSULTA  EDITAR  REMOVER"<<endl<<endl;
-	}
+	string stream;
+	int  i, contador, encontrado=0, remover=0, numCamposPF=7;
 
-	void menuCadastro()
-	{
-		cout<<"HOME  "<<BOLD("CADASTRO")<<"  CONSULTA  EDITAR  REMOVER"<<endl<<endl;
+	ofstream escreverAgenda;
+	ifstream lerAgenda;
 
-	}
+	if ( Tipo == 'F'){
 
-	void menuConsulta()
-	{
-		cout<<"HOME  CADASTRO  "<<BOLD("CONSULTA")<<"  EDITAR  REMOVER"<<endl<<endl;
+		lerAgenda.open(FILEPF,ios::in);
+		escreverAgenda.open("tempf");
 
-	}
+		if ( !lerAgenda ){
+			cerr << "Arquivo não existe, sem entradas para editar." << endl;
+		}
 
-	void menuEditar()
-	{
-		cout<<"HOME  CADASTRO  CONSULTA  "<<BOLD("EDITAR")<<"  REMOVER"<<endl<<endl;
+		string linha;
+
+		contador=0;
+
+		while(getline(lerAgenda,linha))
+		{
+			contador += 1;
+			stringstream linestream(linha);
+
+			for (i=1 ; i<=numCamposPF ; i++){
+				getline(linestream,stream,';');
+
+				switch(i)
+				{
+					case 1:
+						p->setTipo(stream[0]);
+						break;
+					case 2:
+						p->setID(atoi(stream.c_str()));
+						break;
+					case 3:
+						p->setNome(stream);
+						break;
+					case 4:
+						p->setCPF(stream);
+						break;
+					case 5:
+						p->setEndereco(stream);
+						break;
+					case 6:
+						p->setTelefone(stream);
+						break;
+					case 7:
+						p->setEmail(stream);
+						break;
+				} // FIM SWITCH
+
+			} // FIM FOR
+		
+			// ESCREVER NO ARQUIVO
+
+			if ( removerID == p->getID() ){
+				encontrado = 1;
+			} else {
+
+				if ( !escreverAgenda ){
+					cerr<<"Arquivo não pôde ser criado."<<endl;
+				} else {
+					escreverAgenda << p->getTipo() << ";" << p->getID()  << ";" << p->getNome() << ";" << p->getCPF() << ";" << p->getEndereco() << ";" << p->getTelefone() << ";" << p->getEmail() << endl;
+				}
+
+			} // FIM IF QUE ESCREVE TUDO MENOS O QUE O ID COINCIDE
+
+
+		} // FIM WHILE
+
+		lerAgenda.close();
+		escreverAgenda.close();
+
+		system("mv tempf "FILEPF);
+
+		if ( encontrado == 1 ){
+			
+			system("clear");
+
+			exibir->logoAgenda();
+			exibir->menuRemove();			
+
+			cout<<BOLD("Código ID encontrado, cadastro removido com sucesso!")<<endl<<endl;
+
+			p->consulta(p->getTipo(),p);
+
+		} else {
+			cout<<"O código de ID digitado, não foi encontrado."<<endl<<endl;
+			cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+			cin.get();
+		}
+
+	} else {
+
+		//TIPO PESSOA JURIDICA
+		cout << "PESSOA JURIDICA" ;
 
 	}
 	
-	void menuRemover()
-	{
-		cout<<"HOME  CADASTRO  CONSULTA  EDITAR  "<<BOLD("REMOVER")<<endl<<endl;
+}
 
-	}
 
-};
+// METODO(S) SET - CLASSE CONTATO
+void contato::setTipo(char Tipo){ tipo=Tipo; }
+void contato::setID(int ID){ id=ID; }
 
 
 // CLASSE PRINCIPAL - MAIN
 int main()
 {
 
-	char opcao, tipoPessoa;
+	int ID;
+	char opcao;
 
 	// CRIA INSTANCIA	
 	contato p;
@@ -515,67 +634,67 @@ int main()
 		case '1': // OPÇÃO CADASTRO
 		{
 		
-		// WHILE - SUBMENU CADASTRO		
-		while(opcao!='9'){
+			// WHILE - SUBMENU CADASTRO		
+			while(opcao!='9'){
 
-		system("clear");
+			system("clear");
 
-		exibir.logoAgenda();
-		exibir.menuCadastro();
+			exibir.logoAgenda();
+			exibir.menuCadastro();
 
-		cout<<BOLD("[F]")<<" Pessoa Física"<<endl;
-		cout<<BOLD("[J]")<<" Pessoa Jurídica"<<endl;
-		cout<<BOLD("[9]")<<" Voltar"<<endl<<endl;
-		cout<<"Opção "<<BOLD("[ ]\b\b");
-		cin>>opcao;
-		cin.ignore(1000, '\n');
+			cout<<BOLD("[F]")<<" Pessoa Física"<<endl;
+			cout<<BOLD("[J]")<<" Pessoa Jurídica"<<endl;
+			cout<<BOLD("[9]")<<" Voltar"<<endl<<endl;
+			cout<<"Opção "<<BOLD("[ ]\b\b");
+			cin>>opcao;
+			cin.ignore(1000, '\n');
 		
-			switch(opcao)
-			{
-				// CADASTRO PESSOA FISICA
-				case 'f':
-				case 'F':
+				switch(opcao)
 				{
-					system("clear");
+					// CADASTRO PESSOA FISICA
+					case 'f':
+					case 'F':
+					{
+						system("clear");
 
-					exibir.logoAgenda();
-					exibir.menuCadastro();
+						exibir.logoAgenda();
+						exibir.menuCadastro();
 
-					//CADASTRO
-					p.setTipo('F');
-					p.cadastra(p.getTipo(),&p);
+						//CADASTRO
+						p.setTipo('F');
+						p.cadastra(p.getTipo(),&p);
 
-				}
-				break;
+					}
+					break;
 
-				// CADASTRO PESSOA JURIDICA
-				case 'j':
-				case 'J':
-				{
-					system("clear");
+					// CADASTRO PESSOA JURIDICA
+					case 'j':
+					case 'J':
+					{
+						system("clear");
 
-					exibir.logoAgenda();
-					exibir.menuCadastro();
+						exibir.logoAgenda();
+						exibir.menuCadastro();
 
-					//CADASTRO
-					p.setTipo('J');
-					p.cadastra(p.getTipo(),&p);					
-				}
-				break;
+						//CADASTRO
+						p.setTipo('J');
+						p.cadastra(p.getTipo(),&p);					
+					}
+					break;
 
-				case '9':
-				{
-					cout<<"Voltar."<<endl;
-				}
-				break;
+					case '9':
+					{
+						cout<<"Voltar."<<endl;
+					}
+					break;
 
-				default:
-					cout<<"Opção inválida, tente novamente."<<endl<<endl;
-					system("sleep 1");
+					default:
+						cout<<"Opção inválida, tente novamente."<<endl<<endl;
+						system("sleep 1");
 
-			} // FIM DO SWITCH - CADASTRO PESSOA FISICA|JURIDICA 
+				} // FIM DO SWITCH - CADASTRO PESSOA FISICA|JURIDICA 
 
-		} // FIM WHILE - SUBMENU - CADASTRO
+			} // FIM WHILE - SUBMENU - CADASTRO
 
 		} // FIM CASE - OPCAO 1 - CADASTRO
 		break;
@@ -583,77 +702,280 @@ int main()
 		case '2': // OPÇÃO CONSULTA
 		{
 
-		// WHILE - SUBMENU CADASTRO		
-		while(opcao!='9'){
+			// WHILE - SUBMENU CADASTRO
+			while(opcao!='9'){
 
-		system("clear");
+			system("clear");
 
-		exibir.logoAgenda();
-		exibir.menuConsulta();
+			exibir.logoAgenda();
+			exibir.menuConsulta();
 
-		cout<<BOLD("[F]")<<" Pessoa Física"<<endl;
-		cout<<BOLD("[J]")<<" Pessoa Jurídica"<<endl;
-		cout<<BOLD("[9]")<<" Voltar"<<endl<<endl;
-		cout<<"Opção "<<BOLD("[ ]\b\b");
-		cin>>opcao;
-		cin.ignore(1000, '\n');
+			cout<<BOLD("[F]")<<" Pessoa Física"<<endl;
+			cout<<BOLD("[J]")<<" Pessoa Jurídica"<<endl;
+			cout<<BOLD("[9]")<<" Voltar"<<endl<<endl;
+			cout<<"Opção "<<BOLD("[ ]\b\b");
+			cin>>opcao;
+			cin.ignore(1000, '\n');
 		
-			switch(opcao)
-			{
-				// CONSULTA PESSOA FISICA
-				case 'f':
-				case 'F':
+				switch(opcao)
 				{
-					system("clear");
+					// CONSULTA PESSOA FISICA
+					case 'f':
+					case 'F':
+					{
+						system("clear");
 
-					exibir.logoAgenda();
-					exibir.menuConsulta();
+						exibir.logoAgenda();
+						exibir.menuConsulta();
 
-					//CONSULTA
-					p.setTipo('F');
-					p.consulta(p.getTipo(),&p);
+						//CONSULTA
+						p.setTipo('F');
+						p.consulta(p.getTipo(),&p);
 
-				}
-				break;
+					}
+					break;
 
-				// CONSULTA PESSOA JURIDICA
-				case 'j':
-				case 'J':
-				{
-					system("clear");
+					// CONSULTA PESSOA JURIDICA
+					case 'j':
+					case 'J':
+					{
+						system("clear");
 
-					exibir.logoAgenda();
-					exibir.menuConsulta();
+						exibir.logoAgenda();
+						exibir.menuConsulta();
 
-					//CONSULTA
-					p.setTipo('J');
-					p.consulta(p.getTipo(),&p);					
-				}
-				break;
+						//CONSULTA
+						p.setTipo('J');
+						p.consulta(p.getTipo(),&p);					
+					}
+					break;
 
-				case '9':
-				{
-					cout<<"Voltar."<<endl;
-				}
-				break;
+					case '9':
+					{
+						cout<<"Voltar."<<endl;
+					}
+					break;
 
-				default:
-					cout<<"Opção inválida, tente novamente."<<endl<<endl;
-					system("sleep 1");
+					default:
+						cout<<"Opção inválida, tente novamente."<<endl<<endl;
+						system("sleep 1");
 
-			} // FIM DO SWITCH - CONSULTA PESSOA FISICA|JURIDICA 
+				} // FIM DO SWITCH - CONSULTA PESSOA FISICA|JURIDICA 
 
-		} // FIM WHILE - SUBMENU - CONSULTA
+			} // FIM WHILE - SUBMENU - CONSULTA
 
 		} // FIM CASE - OPCAO 2 - CONSULTA
 		break;
 
+		/*
+
+		OPÇÃO 3 - EDITAR
+	
+		*/
+
 		case '3': // OPÇÃO EDITAR
-			cout<<"Opção Editar: "<<opcao<<endl;
-		break;
 			
-		case '4': // OPÇÃO REMOVER
+			cout<<"Opção Editar: "<<opcao<<endl;
+
+			// WHILE - SUBMENU EDITAR
+			while(opcao!='9'){
+
+			system("clear");
+
+			exibir.logoAgenda();
+			exibir.menuEdita();
+
+			cout<<BOLD("[F]")<<" Pessoa Física"<<endl;
+			cout<<BOLD("[J]")<<" Pessoa Jurídica"<<endl;
+			cout<<BOLD("[9]")<<" Voltar"<<endl<<endl;
+			cout<<"Opção "<<BOLD("[ ]\b\b");
+			cin>>opcao;
+			cin.ignore(1000, '\n');
+		
+				switch(opcao)
+				{
+					// EDITA PESSOA FISICA
+					case 'f':
+					case 'F':
+					{
+						system("clear");
+
+						exibir.logoAgenda();
+						exibir.menuEdita();
+
+						//REMOVE
+						p.setTipo('F');
+						p.consulta(p.getTipo(),&p,0);
+
+						cout<<endl;
+						
+						cout<<"Entre com o ID do registro que deseja editar "<<BOLD("[ ]\b\b");
+						cin>>ID;
+						cin.ignore(1000, '\n');
+
+						// CHAMAR FUNÇÃO QUE EDITA PASSANDO ARGUMENTO DO ID E PONTEIRO PRA OBJETO DA CLASSE
+						/*
+
+		
+						CHAMAR AQUI FUNÇÃO QUE EDITA
+
+						*/
+
+					}
+					break;
+
+					// EDITA PESSOA JURIDICA
+					case 'j':
+					case 'J':
+					{
+						system("clear");
+
+						exibir.logoAgenda();
+						exibir.menuEdita();
+
+						//CADASTRO
+						p.setTipo('J');
+						p.consulta(p.getTipo(),&p,0);
+
+						cout<<endl;
+						
+						cout<<"Entre com o ID do registro que deseja editar "<<BOLD("[ ]\b\b");
+						cin>>ID;
+						cin.ignore(1000, '\n');
+
+						// CHAMAR FUNÇÃO QUE EDITA PASSANDO ARGUMENTO DO ID E PONTEIRO PRA OBJETO DA CLASSE
+						/*
+
+		
+						CHAMAR AQUI FUNÇÃO QUE EDITA
+
+						*/
+
+					}
+					break;
+
+					case '9':
+					{
+						cout<<"Voltar."<<endl;
+					}
+					break;
+
+					default:
+						cout<<"Opção inválida, tente novamente."<<endl<<endl;
+						system("sleep 1");
+
+				} // FIM DO SWITCH - EDITAR PESSOA FISICA|JURIDICA 
+
+			} // FIM WHILE - SUBMENU - EDITAR
+
+	
+
+		break;
+
+		/*
+
+		OPÇÃO 4 - REMOVER
+
+		*/
+			
+		case '4':
 			cout<<"Opção Remover: "<<opcao<<endl;
+		
+			// WHILE - SUBMENU REMOVER
+			while(opcao!='9'){
+
+			system("clear");
+
+			exibir.logoAgenda();
+			exibir.menuRemove();
+
+			cout<<BOLD("[F]")<<" Pessoa Física"<<endl;
+			cout<<BOLD("[J]")<<" Pessoa Jurídica"<<endl;
+			cout<<BOLD("[9]")<<" Voltar"<<endl<<endl;
+			cout<<"Opção "<<BOLD("[ ]\b\b");
+			cin>>opcao;
+			cin.ignore(1000, '\n');
+		
+				switch(opcao)
+				{
+					// REMOVE PESSOA FISICA
+					case 'f':
+					case 'F':
+					{
+						system("clear");
+
+						exibir.logoAgenda();
+						exibir.menuRemove();
+
+						//REMOVE
+						p.setTipo('F');
+						p.consulta(p.getTipo(),&p,0);
+
+						cout<<endl;
+						
+						cout<<"Entre com o ID do registro que deseja remover "<<BOLD("[ ]\b\b");
+						cin>>ID;
+						cin.ignore(1000, '\n');
+
+						// CHAMAR FUNÇÃO QUE REMOVE PASSANDO ARGUMENTO DO ID E PONTEIRO PRA OBJETO DA CLASSE
+						/*
+
+		
+						CHAMAR AQUI FUNÇÃO QUE REMOVE						
+
+						*/
+						
+						// REMOVE ID
+						p.remove(ID,p.getTipo(),&exibir,&p);
+
+					}
+					break;
+
+					// REMOVE PESSOA JURIDICA
+					case 'j':
+					case 'J':
+					{
+						system("clear");
+
+						exibir.logoAgenda();
+						exibir.menuRemove();
+
+						//CADASTRO
+						p.setTipo('J');
+						p.consulta(p.getTipo(),&p,0);
+
+						cout<<endl;
+						
+						cout<<"Entre com o ID do registro que deseja remover "<<BOLD("[ ]\b\b");
+						cin>>ID;
+						cin.ignore(1000, '\n');
+
+						// CHAMAR FUNÇÃO QUE REMOVE PASSANDO ARGUMENTO DO ID E PONTEIRO PRA OBJETO DA CLASSE
+						/*
+
+		
+						CHAMAR AQUI FUNÇÃO QUE REMOVE						
+
+						*/
+
+					}
+					break;
+
+					case '9':
+					{
+						cout<<"Voltar."<<endl;
+					}
+					break;
+
+					default:
+						cout<<"Opção inválida, tente novamente."<<endl<<endl;
+						system("sleep 1");
+
+				} // FIM DO SWITCH - REMOVE PESSOA FISICA|JURIDICA 
+
+			} // FIM WHILE - SUBMENU - REMOVE
+
+
 		break;
 			
 		default: // OPÇÃO FECHAR
