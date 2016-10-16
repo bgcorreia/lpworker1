@@ -97,12 +97,12 @@ class contato: public pessoaFisica
 {
 private:
 	char tipo;
-	int id, idNow;
+	int id;
 public:
 
 	char getTipo();
 	int getID();
-	int verificaID(){ return idNow ; }
+	int verificaID(char, contato*);
 
 	void cadastra(char, contato *);
 	void consulta(char, contato *);
@@ -117,6 +117,53 @@ public:
 // METODO(S) GET - CLASSE CONTATO
 char contato::getTipo(){ return tipo; }
 int contato::getID(){ return id; }
+
+int contato::verificaID(char tipo, contato *p){
+
+	string stream;
+	int  maior, i, contador;
+	int numCamposPF=7;
+
+	ifstream lerAgenda;
+
+	lerAgenda.open(FILEPF,ios::in);
+
+	if ( !lerAgenda ){
+		cerr << "Arquivo não pode ser aberto." << endl;
+		cout << "Prosseguindo, diretorio pode nao ter permissao, ou arquivo ainda nao criado." <<endl<<endl;
+	}
+
+	string linha;
+
+	contador=0;
+
+	while(getline(lerAgenda,linha))
+	{
+		contador += 1;
+		stringstream linestream(linha);
+
+		for (i=1 ; i<=numCamposPF ; i++){
+		        getline(linestream,stream,';');
+
+		        switch(i)
+		        {
+		                case 2:
+		                        p->setID(atoi(stream.c_str()));
+					break;
+			}
+
+		}
+
+		if ( p->getID() > maior ){
+                	maior = p->getID();
+		}
+
+	}
+
+	// RETORNA PRÓXIMO ID
+	return maior + 1 ;
+
+}
 
 void contato::cadastra(char Tipo, contato *p){
 
@@ -134,6 +181,7 @@ void contato::cadastra(char Tipo, contato *p){
 		CHAMAR FUNÇÃO QUE COLOCA ID CORRETO
 		CHEGAR IDs CADASTRADOS E RETORNAR O CORRETO
 		*/
+		p->setID(p->verificaID(Tipo,p));
 
 		// Exibe o texto abaixo
 		cout<<"Opção Cadastro, Pessoa Física."<<endl<<endl;
@@ -300,8 +348,7 @@ void contato::consulta(char Tipo, contato *p){
 		lerAgenda.open(FILEPF,ios::in);
 
 		if ( !lerAgenda ){
-			cerr << "Arquivo não pode ser aberto." << endl;
-			exit(1);
+			cerr << "Arquivo não existe, sem entradas para exibir." << endl;
 		}
 
 		cout << left << setw(12) << BOLD("ID") << setw(38) << BOLD("NOME") << setw(26) << BOLD("CPF") << setw(58) << BOLD("ENDEREÇO") << setw(38) << BOLD("TELEFONE") << BOLD("EMAIL") << endl;
