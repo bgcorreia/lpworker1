@@ -78,6 +78,9 @@ private:
 	string telefone;
 	string email;
 public:
+	//pessoa(const int&); // CONSTRUTOR
+	//~pessoa(); // DESTRUTOR
+
 	string getNome();
 	string getEndereco();
 	string getTelefone();
@@ -88,6 +91,16 @@ public:
 	void setTelefone(string);
 	void setEmail(string);
 };
+
+/*
+pessoa::pessoa(const pessoa&){
+	cout<<endl<<"Construtor"<<endl;
+}
+
+pessoa::~pessoa(){
+	cout<<endl<<"Destrutor"<<endl;
+}
+*/
 
 // METODO(S) GET - CLASSE PESSOA
 string pessoa::getNome(){ return nome; }
@@ -123,26 +136,19 @@ class pessoaJuridica: public pessoa
 {
 private:
 	string cnpj;
-	string nomeFantasia;
 public:
 	string getCNPJ();
-	string getNomeFantasia();
-
 	void setCNPJ(string);
-	void setNomeFantasia(string);
 };
 
 // METODO(S) GET - CLASSE PESSOA JURIDICA
 string pessoaJuridica::getCNPJ(){ return cnpj; }
-string pessoaJuridica::getNomeFantasia(){ return nomeFantasia; }
 // METODO(S) SET - CLASSE PESSOA JURIDICA
 void pessoaJuridica::setCNPJ( string CNPJ ){ cnpj=CNPJ; }
-void pessoaJuridica::setNomeFantasia( string NomeFantasia ){ nomeFantasia=NomeFantasia; }
-
 
 
 // CLASSE CONTATO
-class contato: public pessoaFisica, private mensagem
+class contato: public pessoaFisica, public pessoaJuridica, private mensagem
 {
 private:
 	char tipo;
@@ -154,7 +160,7 @@ public:
 	int verificaID(char);
 
 	void cadastra(char, contato*);
-	void consulta(char, contato*, int);
+	int consulta(char, contato*, int);
 	void edita(int, char, contato*);
 	void remove(int, char, mensagem*, contato*, int);
 
@@ -170,55 +176,101 @@ int contato::getID(){ return id; }
 int contato::verificaID(char tipo){
 
 	string stream;
-	int ID, i, maior=0, contador=0, numCamposPF=7;
+	int ID, i, maior=0, contador=0, numCampos=7;
 
 	ifstream lerAgenda;
 
-	lerAgenda.open(FILEPF,ios::in);
+	if ( tipo == 'F' ){
 
-	if ( !lerAgenda ){
-		cerr << "Arquivo não pode ser aberto." << endl;
-		cout << "Prosseguindo, diretorio pode nao ter permissao ou arquivo ainda nao criado." <<endl<<endl;
-	}
+		lerAgenda.open(FILEPF,ios::in);
 
-	string linha;
+		if ( !lerAgenda ){
+			cerr << "Arquivo não pode ser aberto." << endl;
+			cout << "Prosseguindo, diretorio pode nao ter permissao ou arquivo ainda nao criado." <<endl<<endl;
+		}
 
-	while(getline(lerAgenda,linha))
-	{
-		contador += 1;
-		stringstream linestream(linha);
+		string linha;
 
-		for (i=1 ; i<=numCamposPF ; i++){
-		        getline(linestream,stream,';');
+		while(getline(lerAgenda,linha))
+		{
+			contador += 1;
+			stringstream linestream(linha);
 
-		        switch(i)
-		        {
-		                case 2:
-		                        ID=atoi(stream.c_str());
-					break;
+			for (i=1 ; i<=numCampos ; i++){
+				getline(linestream,stream,';');
+
+				switch(i)
+				{
+				        case 2:
+				                ID=atoi(stream.c_str());
+						break;
+				}
+
 			}
 
-		}
 
-
-		//cout << "ANTES - ID: " << ID << " | Maior: " << maior << endl; 		
+			//cout << "ANTES - ID: " << ID << " | Maior: " << maior << endl; 		
 	
-		if ( ID > maior ){
-                	maior = ID;
+			if ( ID > maior ){
+		        	maior = ID;
+			}
+
+			//cout << "DEPOIS - ID: " << ID << " | Maior: " << maior << endl;
+
 		}
 
-		//cout << "DEPOIS - ID: " << ID << " | Maior: " << maior << endl;
+		// RETORNA PRÓXIMO ID
+		return maior + 1 ;
+	} 
+	
+	if ( tipo == 'J' ){
 
+		lerAgenda.open(FILEPJ,ios::in);
+
+		if ( !lerAgenda ){
+			cerr << "Arquivo não pode ser aberto." << endl;
+			cout << "Prosseguindo, diretorio pode nao ter permissao ou arquivo ainda nao criado." <<endl<<endl;
+		}
+
+		string linha;
+
+		while(getline(lerAgenda,linha))
+		{
+			contador += 1;
+			stringstream linestream(linha);
+
+			for (i=1 ; i<=numCampos ; i++){
+				getline(linestream,stream,';');
+
+				switch(i)
+				{
+				        case 2:
+				                ID=atoi(stream.c_str());
+						break;
+				}
+
+			}
+
+
+			//cout << "ANTES - ID: " << ID << " | Maior: " << maior << endl; 		
+	
+			if ( ID > maior ){
+		        	maior = ID;
+			}
+
+			//cout << "DEPOIS - ID: " << ID << " | Maior: " << maior << endl;
+
+		}
+
+		// RETORNA PRÓXIMO ID
+		return maior + 1 ;
 	}
-
-	// RETORNA PRÓXIMO ID
-	return maior + 1 ;
 
 }
 
 void contato::cadastra(char Tipo, contato *p){
 
-	string Nome, NomeFantasia, Endereco, Email, Telefone;
+	string Nome, Endereco, Email, Telefone;
 	string CPF, CNPJ;
 	char salvar;
 
@@ -226,11 +278,10 @@ void contato::cadastra(char Tipo, contato *p){
 	ofstream escreverAgenda;
 	ifstream lerAgenda;
 
-
 	if (Tipo == 'F'){
 		/*
 		CHAMAR FUNÇÃO QUE COLOCA ID CORRETO
-		CHEGAR IDs CADASTRADOS E RETORNAR O CORRETO
+		CHECAR IDs CADASTRADOS E RETORNAR O CORRETO
 		*/
 
 		p->setID(p->verificaID(Tipo));
@@ -249,19 +300,19 @@ void contato::cadastra(char Tipo, contato *p){
 
 		cout<<BOLD("NOME")<<"................"<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,Nome);
-		p->setNome(Nome);				
+		p->pessoaFisica::setNome(Nome);
 
 		cout<<BOLD("ENDEREÇO")<<"............"<<BOLD("[")<<".................................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,Endereco);
-		p->setEndereco(Endereco);
+		p->pessoaFisica::setEndereco(Endereco);
 
 		cout<<BOLD("TELEFONE")<<"............"<<BOLD("[")<<"..............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,Telefone);
-		p->setTelefone(Telefone);
+		p->pessoaFisica::setTelefone(Telefone);
 
 		cout<<BOLD("EMAIL")<<"..............."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,Email);
-		p->setEmail(Email);
+		p->pessoaFisica::setEmail(Email);
 
 		cout<<endl;
 		cout<<"Deseja salvar entrada? "<<"[s/n] :"<<BOLD("[")<<" "<<BOLD("]\b\b");
@@ -287,7 +338,7 @@ void contato::cadastra(char Tipo, contato *p){
 			if ( !escreverAgenda ){
 				cerr<<"Arquivo não pôde ser criado."<<endl;
 			} else {
-				escreverAgenda << p->getTipo() << ";" << p->getID()  << ";" << p->getNome() << ";" << p->getCPF() << ";" << p->getEndereco() << ";" << p->getTelefone() << ";" << p->getEmail() << endl;
+				escreverAgenda << p->getTipo() << ";" << p->getID()  << ";" << p->pessoaFisica::getNome() << ";" << p->getCPF() << ";" << p->pessoaFisica::getEndereco() << ";" << p->pessoaFisica::getTelefone() << ";" << p->pessoaFisica::getEmail() << endl;
 				escreverAgenda.close();
 				cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
 				system("sleep 1");
@@ -306,37 +357,44 @@ void contato::cadastra(char Tipo, contato *p){
 
 		} // FIM SWITCH - SALVAR
 
-	} else {
+	}
+	
+	if (Tipo == 'J'){
 
 		/*
 		CHAMAR FUNÇÃO QUE COLOCA ID CORRETO
+		CHECAR IDs CADASTRADOS E RETORNAR O CORRETO
 		*/
 
+		p->setID(p->verificaID(Tipo));
+
 		// Exibe o texto abaixo
-		cout<<"Opção Cadastro, Pessoa Juridica."<<endl<<endl;
+		cout<<"Opção Cadastro, Pessoa Jurídica."<<endl<<endl;
 
 		cout<<"Por favor, preencha o formulário abaixo."<<endl;
 		cout<<BLNK("ATENÇÃO!")<<" Formulários que não seguirem as orientações dos campos, não serão salvos."<<endl<<endl;
 
-		cout<<BOLD("CNPJ")<<"................."<<BOLD("[")<<".............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-		getline(cin,CPF);
-		p->setCPF(CPF);
+		cout<<BOLD("ID")<<"..................."<<BOLD("[")<< p->getID() <<BOLD("]")<<endl;
 
-		cout<<BOLD("NOME FANTASIA")<<"........"<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		cout<<BOLD("CNPJ")<<"................."<<BOLD("[")<<".................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		getline(cin,CNPJ);
+		p->setCNPJ(CNPJ);
+
+		cout<<BOLD("NOME")<<"................."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,Nome);
-		p->setNome(Nome);				
+		p->pessoaJuridica::setNome(Nome);				
 
-		cout<<BOLD("ENDEREÇO")<<"............"<<BOLD("[")<<".................................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		cout<<BOLD("ENDEREÇO")<<"............."<<BOLD("[")<<".................................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,Endereco);
-		p->setEndereco(Endereco);
+		p->pessoaJuridica::setEndereco(Endereco);
 
-		cout<<BOLD("TELEFONE")<<"............"<<BOLD("[")<<"..............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		cout<<BOLD("TELEFONE")<<"............."<<BOLD("[")<<"..............."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,Telefone);
-		p->setTelefone(Telefone);
+		p->pessoaJuridica::setTelefone(Telefone);
 
-		cout<<BOLD("EMAIL")<<"..............."<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		cout<<BOLD("EMAIL")<<"................"<<BOLD("[")<<"............................."<<BOLD("]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 		getline(cin,Email);
-		p->setEmail(Email);
+		p->pessoaJuridica::setEmail(Email);
 
 		cout<<endl;
 		cout<<"Deseja salvar entrada? "<<"[s/n] :"<<BOLD("[")<<" "<<BOLD("]\b\b");
@@ -362,7 +420,7 @@ void contato::cadastra(char Tipo, contato *p){
 			if ( !escreverAgenda ){
 				cerr<<"Arquivo não pôde ser criado."<<endl;
 			} else {
-				escreverAgenda << p->getTipo() << ";" << p->getNome() << ";" << p->getCPF() << ";" << p->getEndereco() << ";" << p->getTelefone() << ";" << p->getEmail() << endl;
+				escreverAgenda << p->getTipo() << ";" << p->getID()  << ";" << p->pessoaJuridica::getNome() << ";" << p->getCNPJ() << ";" << p->pessoaJuridica::getEndereco() << ";" << p->pessoaJuridica::getTelefone() << ";" << p->pessoaJuridica::getEmail() << endl;
 				escreverAgenda.close();
 				cout<<endl<<BOLD("Cadastro incluído com sucesso!")<<endl;
 				system("sleep 1");
@@ -386,11 +444,11 @@ void contato::cadastra(char Tipo, contato *p){
 }
 
 
-void contato::consulta(char Tipo, contato *p, int pressioneTecla = 1){
+int contato::consulta(char Tipo, contato *p, int pressioneTecla = 1){
 
 	string stream;
 	int  i, contador;
-	int numCamposPF=7 ;
+	int numCampos=7 ;
 
 	ofstream escreverAgenda;
 	ifstream lerAgenda;
@@ -415,7 +473,7 @@ void contato::consulta(char Tipo, contato *p, int pressioneTecla = 1){
 			contador += 1;
 			stringstream linestream(linha);
 
-			for (i=1 ; i<=numCamposPF ; i++){
+			for (i=1 ; i<=numCampos ; i++){
 				getline(linestream,stream,';');
 
 				switch(i)
@@ -431,34 +489,34 @@ void contato::consulta(char Tipo, contato *p, int pressioneTecla = 1){
 						//cout << left << setw(1) << stream; //ID
 						break;
 					case 3:
-						p->setNome(stream);
+						p->pessoaFisica::setNome(stream);
 						//cpf = stream ;
 						//cout <<  setw(18) << stream; // CPF
 						break;
 					case 4:
-						p->setCPF(stream);
+						p->pessoaFisica::setCPF(stream);
 						//nome = stream ;
 						//cout << setw(30) << stream; // NOME
 						break;
 					case 5:
-						p->setEndereco(stream);
+						p->pessoaFisica::setEndereco(stream);
 						//endereco = stream ;
 						//cout << setw(49) << stream; // ENDERECO
 						break;
 					case 6:
-						p->setTelefone(stream);
+						p->pessoaFisica::setTelefone(stream);
 						//telefone = stream ;
 						//cout << setw(30) << stream; // TELEFONE
 						break;
 					case 7:
-						p->setEmail(stream);
+						p->pessoaFisica::setEmail(stream);
 						//email = stream ;
 						//cout << stream << endl; // EMAIL
 				}
 			}
 		
 		// PRINTA NA TELA LINHA A LINHA
-		cout << left << setw(4) << p->getID() << setw(30) << p->getNome() << setw(18) << p->getCPF() << setw(49) << p->getEndereco() << setw(30) << p->getTelefone() << p->getEmail() << endl  ;
+		cout << left << setw(4) << p->getID() << setw(30) << p->pessoaFisica::getNome() << setw(18) << p->getCPF() << setw(49) << p->pessoaFisica::getEndereco() << setw(30) << p->pessoaFisica::getTelefone() << p->pessoaFisica::getEmail() << endl  ;
 		}
 		lerAgenda.close();
 
@@ -472,10 +530,85 @@ void contato::consulta(char Tipo, contato *p, int pressioneTecla = 1){
 			cin.get();
 		}
 
-	} else {
+		return contador;
 
-		//TIPO PESSOA JURIDICA
-		cout << "PESSOA JURIDICA" ;
+	}
+
+	if ( Tipo == 'J'){
+
+		lerAgenda.open(FILEPJ,ios::in);
+
+		if ( !lerAgenda ){
+			cerr << "Arquivo não existe, sem entradas para exibir." << endl;
+		}
+
+		cout << left << setw(12) << BOLD("ID") << setw(38) << BOLD("NOME") << setw(27) << BOLD("CNPJ") << setw(58) << BOLD("ENDEREÇO") << setw(38) << BOLD("TELEFONE") << BOLD("EMAIL") << endl;
+
+		string linha;
+
+		contador=0;
+
+		while(getline(lerAgenda,linha))
+		{
+			contador += 1;
+			stringstream linestream(linha);
+
+			for (i=1 ; i<=numCampos ; i++){
+				getline(linestream,stream,';');
+
+				switch(i)
+				{
+					case 1:
+						p->setTipo(stream[0]);
+						break;
+					case 2:
+						// CONVERSÃO STRING P/ INTEIRO
+						//id = atoi(stream.c_str());
+						p->setID(atoi(stream.c_str()));
+						//id = stream ;  
+						//cout << left << setw(1) << stream; //ID
+						break;
+					case 3:
+						p->pessoaJuridica::setNome(stream);
+						//cpf = stream ;
+						//cout <<  setw(18) << stream; // CPF
+						break;
+					case 4:
+						p->pessoaJuridica::setCNPJ(stream);
+						//nome = stream ;
+						//cout << setw(30) << stream; // NOME
+						break;
+					case 5:
+						p->pessoaJuridica::setEndereco(stream);
+						//endereco = stream ;
+						//cout << setw(49) << stream; // ENDERECO
+						break;
+					case 6:
+						p->pessoaJuridica::setTelefone(stream);
+						//telefone = stream ;
+						//cout << setw(30) << stream; // TELEFONE
+						break;
+					case 7:
+						p->pessoaJuridica::setEmail(stream);
+						//email = stream ;
+						//cout << stream << endl; // EMAIL
+				}
+			}
+		
+		// PRINTA NA TELA LINHA A LINHA
+		cout << left << setw(4) << p->getID() << setw(30) << p->pessoaJuridica::getNome() << setw(19) << p->getCNPJ() << setw(49) << p->pessoaJuridica::getEndereco() << setw(30) << p->pessoaJuridica::getTelefone() << p->pessoaJuridica::getEmail() << endl  ;
+		}
+		lerAgenda.close();
+
+		cout<<endl<<contador<<" entrada(s)."<<endl;
+		cout<<endl;
+
+		if (pressioneTecla == 1){
+			cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+			cin.get();
+		}
+
+		return contador;
 
 	}
 
@@ -492,7 +625,7 @@ void contato::edita(int ID, char Tipo, contato *p){
 void contato::remove(int removerID, char Tipo, mensagem *exibir, contato *p, int pressioneTecla = 1){
 
 	string stream;
-	int  i, contador, encontrado=0, remover=0, numCamposPF=7;
+	int  i, contador, encontrado=0, numCampos=7;
 
 	ofstream escreverAgenda;
 	ifstream lerAgenda;
@@ -515,7 +648,7 @@ void contato::remove(int removerID, char Tipo, mensagem *exibir, contato *p, int
 			contador += 1;
 			stringstream linestream(linha);
 
-			for (i=1 ; i<=numCamposPF ; i++){
+			for (i=1 ; i<=numCampos ; i++){
 				getline(linestream,stream,';');
 
 				switch(i)
@@ -527,19 +660,19 @@ void contato::remove(int removerID, char Tipo, mensagem *exibir, contato *p, int
 						p->setID(atoi(stream.c_str()));
 						break;
 					case 3:
-						p->setNome(stream);
+						p->pessoaFisica::setNome(stream);
 						break;
 					case 4:
 						p->setCPF(stream);
 						break;
 					case 5:
-						p->setEndereco(stream);
+						p->pessoaFisica::setEndereco(stream);
 						break;
 					case 6:
-						p->setTelefone(stream);
+						p->pessoaFisica::setTelefone(stream);
 						break;
 					case 7:
-						p->setEmail(stream);
+						p->pessoaFisica::setEmail(stream);
 						break;
 				} // FIM SWITCH
 
@@ -554,7 +687,7 @@ void contato::remove(int removerID, char Tipo, mensagem *exibir, contato *p, int
 				if ( !escreverAgenda ){
 					cerr<<"Arquivo não pôde ser criado."<<endl;
 				} else {
-					escreverAgenda << p->getTipo() << ";" << p->getID()  << ";" << p->getNome() << ";" << p->getCPF() << ";" << p->getEndereco() << ";" << p->getTelefone() << ";" << p->getEmail() << endl;
+					escreverAgenda << p->getTipo() << ";" << p->getID()  << ";" << p->pessoaFisica::getNome() << ";" << p->getCPF() << ";" << p->pessoaFisica::getEndereco() << ";" << p->pessoaFisica::getTelefone() << ";" << p->pessoaFisica::getEmail() << endl;
 				}
 
 			} // FIM IF QUE ESCREVE TUDO MENOS O QUE O ID COINCIDE
@@ -584,10 +717,94 @@ void contato::remove(int removerID, char Tipo, mensagem *exibir, contato *p, int
 			cin.get();
 		}
 
-	} else {
+	} 
 
-		//TIPO PESSOA JURIDICA
-		cout << "PESSOA JURIDICA" ;
+	if ( Tipo == 'J'){
+
+		lerAgenda.open(FILEPJ,ios::in);
+		escreverAgenda.open("tempj");
+
+		if ( !lerAgenda ){
+			cerr << "Arquivo não existe, sem entradas para editar." << endl;
+		}
+
+		string linha;
+
+		contador=0;
+
+		while(getline(lerAgenda,linha))
+		{
+			contador += 1;
+			stringstream linestream(linha);
+
+			for (i=1 ; i<=numCampos ; i++){
+				getline(linestream,stream,';');
+
+				switch(i)
+				{
+					case 1:
+						p->setTipo(stream[0]);
+						break;
+					case 2:
+						p->setID(atoi(stream.c_str()));
+						break;
+					case 3:
+						p->pessoaJuridica::setNome(stream);
+						break;
+					case 4:
+						p->setCNPJ(stream);
+						break;
+					case 5:
+						p->pessoaJuridica::setEndereco(stream);
+						break;
+					case 6:
+						p->pessoaJuridica::setTelefone(stream);
+						break;
+					case 7:
+						p->pessoaJuridica::setEmail(stream);
+						break;
+				} // FIM SWITCH
+
+			} // FIM FOR
+		
+			// ESCREVER NO ARQUIVO
+
+			if ( removerID == p->getID() ){
+				encontrado = 1;
+			} else {
+
+				if ( !escreverAgenda ){
+					cerr<<"Arquivo não pôde ser criado."<<endl;
+				} else {
+					escreverAgenda << p->getTipo() << ";" << p->getID()  << ";" << p->pessoaJuridica::getNome() << ";" << p->getCNPJ() << ";" << p->pessoaJuridica::getEndereco() << ";" << p->pessoaJuridica::getTelefone() << ";" << p->pessoaJuridica::getEmail() << endl;
+				}
+
+			} // FIM IF QUE ESCREVE TUDO MENOS O QUE O ID COINCIDE
+
+
+		} // FIM WHILE
+
+		lerAgenda.close();
+		escreverAgenda.close();
+
+		system("mv tempj "FILEPJ);
+
+		if ( encontrado == 1 ){
+			
+			system("clear");
+
+			exibir->logoAgenda();
+			exibir->menuRemove();			
+
+			cout<<BOLD("Código ID encontrado, cadastro removido com sucesso!")<<endl<<endl;
+
+			p->consulta(p->getTipo(),p);
+
+		} else {
+			cout<<"O código de ID digitado, não foi encontrado."<<endl<<endl;
+			cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+			cin.get();
+		}
 
 	}
 	
@@ -631,6 +848,13 @@ int main()
 
 	switch(opcao)
 	{
+
+		/*
+
+		OPÇÃO 1 - CADASTRAR
+
+		*/
+
 		case '1': // OPÇÃO CADASTRO
 		{
 		
@@ -698,6 +922,12 @@ int main()
 
 		} // FIM CASE - OPCAO 1 - CADASTRO
 		break;
+
+		/*
+
+		OPÇÃO 2 - CONSULTAR
+
+		*/
 
 		case '2': // OPÇÃO CONSULTA
 		{
@@ -805,13 +1035,24 @@ int main()
 
 						//REMOVE
 						p.setTipo('F');
-						p.consulta(p.getTipo(),&p,0);
+						//p.consulta(p.getTipo(),&p,0);
 
-						cout<<endl;
+						// SE EXISTIR ALGUM REGISTRO
+						if ( p.consulta(p.getTipo(),&p,0) ){
+							
+							cout<<endl;
 						
-						cout<<"Entre com o ID do registro que deseja editar "<<BOLD("[ ]\b\b");
-						cin>>ID;
-						cin.ignore(1000, '\n');
+							cout<<"Entre com o ID do registro que deseja editar "<<BOLD("[ ]\b\b");
+							cin>>ID;
+							cin.ignore(1000, '\n');
+
+						} else {
+							cout<<endl;
+							cout<<"Não existem registros para serem editados.";
+							cout<<endl;
+							cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+							cin.get();
+						}
 
 						// CHAMAR FUNÇÃO QUE EDITA PASSANDO ARGUMENTO DO ID E PONTEIRO PRA OBJETO DA CLASSE
 						/*
@@ -835,21 +1076,22 @@ int main()
 
 						//CADASTRO
 						p.setTipo('J');
-						p.consulta(p.getTipo(),&p,0);
 
-						cout<<endl;
-						
-						cout<<"Entre com o ID do registro que deseja editar "<<BOLD("[ ]\b\b");
-						cin>>ID;
-						cin.ignore(1000, '\n');
+						if ( p.consulta(p.getTipo(),&p,0) ){
+	
+							cout<<endl;
 
-						// CHAMAR FUNÇÃO QUE EDITA PASSANDO ARGUMENTO DO ID E PONTEIRO PRA OBJETO DA CLASSE
-						/*
+							cout<<"Entre com o ID do registro que deseja editar "<<BOLD("[ ]\b\b");
+							cin>>ID;
+							cin.ignore(1000, '\n');
 
-		
-						CHAMAR AQUI FUNÇÃO QUE EDITA
-
-						*/
+						} else {
+							cout<<endl;
+							cout<<"Não existem registros para serem editados.";
+							cout<<endl;
+							cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+							cin.get();
+						}
 
 					}
 					break;
@@ -907,26 +1149,29 @@ int main()
 						exibir.logoAgenda();
 						exibir.menuRemove();
 
-						//REMOVE
+						// DEFINE TIPO
 						p.setTipo('F');
-						p.consulta(p.getTipo(),&p,0);
-
-						cout<<endl;
-						
-						cout<<"Entre com o ID do registro que deseja remover "<<BOLD("[ ]\b\b");
-						cin>>ID;
-						cin.ignore(1000, '\n');
-
-						// CHAMAR FUNÇÃO QUE REMOVE PASSANDO ARGUMENTO DO ID E PONTEIRO PRA OBJETO DA CLASSE
-						/*
-
-		
-						CHAMAR AQUI FUNÇÃO QUE REMOVE						
-
+						/* 
+						ULTIMO PARAMETRO DA CHAMADA É PARA PRESSIONAR TECLA OU NÃO
+						0 = DESABILITADO
 						*/
-						
-						// REMOVE ID
-						p.remove(ID,p.getTipo(),&exibir,&p);
+						if ( p.consulta(p.getTipo(),&p,0) ){
+	
+							cout<<endl;
+
+							cout<<"Entre com o ID do registro que deseja remover "<<BOLD("[ ]\b\b");
+							cin>>ID;
+							cin.ignore(1000, '\n');
+
+							// REMOVE ID
+							p.remove(ID,p.getTipo(),&exibir,&p);
+
+						} else {
+							cout<<"Não existem registros para serem removidos.";
+							cout<<endl<<endl;
+							cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+							cin.get();
+						}
 
 					}
 					break;
@@ -940,24 +1185,31 @@ int main()
 						exibir.logoAgenda();
 						exibir.menuRemove();
 
-						//CADASTRO
+						// DEFINE TIPO
 						p.setTipo('J');
-						p.consulta(p.getTipo(),&p,0);
-
-						cout<<endl;
 						
-						cout<<"Entre com o ID do registro que deseja remover "<<BOLD("[ ]\b\b");
-						cin>>ID;
-						cin.ignore(1000, '\n');
-
-						// CHAMAR FUNÇÃO QUE REMOVE PASSANDO ARGUMENTO DO ID E PONTEIRO PRA OBJETO DA CLASSE
-						/*
-
-		
-						CHAMAR AQUI FUNÇÃO QUE REMOVE						
-
+						/* 
+						ULTIMO PARAMETRO DA CHAMADA É PARA PRESSIONAR TECLA OU NÃO
+						0 = DESABILITADO
 						*/
+						if ( p.consulta(p.getTipo(),&p,0) ){
+	
+							cout<<endl;
 
+							cout<<"Entre com o ID do registro que deseja remover "<<BOLD("[ ]\b\b");
+							cin>>ID;
+							cin.ignore(1000, '\n');
+
+							// REMOVE ID
+							p.remove(ID,p.getTipo(),&exibir,&p);
+
+						} else {
+							cout<<"Não existem registros para serem removidos.";
+							cout<<endl<<endl;
+							cout<<"Pressione a tecla [ENTER] fechar a exibição.";
+							cin.get();
+						}
+						
 					}
 					break;
 
